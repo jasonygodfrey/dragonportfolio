@@ -1,0 +1,8 @@
+Model Information:
+* title:	Blue dragon
+* source:	https://sketchfab.com/3d-models/blue-dragon-629a8b0353404af793c55d1619c38118
+* author:	Luna (https://sketchfab.com/StudioLuna)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Portal (Night version)
+* source:	https://sketchfab.com/3d-models/portal-night-version-36a3c849b643485daea9c84260ed57fa
+* author:	shindiego.ds (https://sketchfab.com/shindiego.ds)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Portal (Night version)" (https://sketchfab.com/3d-models/portal-night-version-36a3c849b643485daea9c84260ed57fa) by shindiego.ds (https://sketchfab.com/shindiego.ds) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

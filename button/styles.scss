@@ -1,0 +1,243 @@
+@use '../../scss/' as *;
+
+.slider {
+    .wrap-btn {
+        @include flex(center,flex-start);
+        .tf-button,
+        .tf-button-st2 {
+            height: 64px;
+            line-height: 64px;
+            padding: 0 34px;
+            text-align: center;
+        }
+        .tf-button-st2 {
+            margin-right: 18px;
+            padding: 0px 32px;
+        }
+
+        @include mobile {
+            flex-wrap: wrap;
+            .tf-button-st2 {
+                margin-bottom: 20px;
+                margin-right: 0;
+            }
+        }
+    }
+}
+
+    .slider {
+        .wrap-btn {
+            &.style2 {
+                .tf-button {
+                    padding: 0px 34px;
+                }
+                .tf-button-st2 {
+                    margin-right: 18px;
+                }
+            }
+        }
+    }
+
+.tf-button {
+    @include transition3;
+    position: relative;
+    display: inline-block;
+    background: transparent;
+    font-family: $font-main;
+    color: $white;
+    font-weight: $font-w7;
+    text-transform: uppercase;
+    padding: 9px 32px;
+    height: 48px;
+    border: none;
+    .boder-fade {
+        position: absolute;
+        transition: all 0.1s;
+        border: 2px solid $bg-2;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        left: 0;
+        top: 0;
+    }
+    .effect {
+        display: block;
+        &::before, 
+        &::after {
+            content:"";
+            width:2px;
+            height:0;
+            position: absolute;
+            transition: all 0.2s linear;
+            background: #fff;
+        }
+    }
+    &::before, 
+    &::after {
+        content:"";
+        width: 0;
+        height: 2px;
+        position: absolute;
+        transition: all 0.2s linear;
+        background: #fff;
+    }
+    &:hover {
+        color: $white;
+        &::before, 
+        &::after{
+            width: 100%;
+        }
+        .effect {
+            &::before,
+            &::after{
+                height: 100%;
+            }
+        }
+    }
+    &.btn-effect {
+        &::before{
+            left: 50%;
+            top: 0;
+            transition-duration: 0.3s;
+            z-index: 1;
+        }
+        &::after{
+            left: 50%;
+            bottom: 0;
+            transition-duration: 0.3s;
+            z-index: 1;
+        }
+        .effect {
+            &::before{
+                left: 0;
+                top: 50%;
+                transition-duration: 0.3s;
+            }
+            &::after{
+                right: 0;
+                top: 50%;
+                transition-duration: 0.3s;
+            }
+        }
+        &:hover {
+            &::after,
+            &::before {
+                left: 0;
+            }
+            .effect {
+                &::after,
+                &::before {
+                    top: 0;
+                } 
+            }
+        }
+    } 
+    &.st2 {
+        height: 64px;
+        line-height: 64px;
+        padding: 0 33px
+    }
+    &.st3 {
+        height: 66px;
+        line-height: 64px;
+        padding: 0 33px
+    }
+}
+.tf-button-st2 {
+    position: relative;
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.457); // Button background
+    font-family: $font-main; // Uses a CSS variable for font
+    color: $white; // Uses a CSS variable for color
+    font-weight: $font-w7; // Uses a CSS variable for font weight
+    text-transform: uppercase; // Uppercases the button text
+    padding: 10px 32px; // Padding around the text
+    height: 64px; // Fixed height of the button
+    border: 2px solid #fff; // Adds a white border directly to the button
+    transition: all 0.1s; // Transition for hover effects
+
+    &:hover {
+        color: $white; // Keeps the text color white on hover
+        background: transparent; // Makes background transparent on hover
+        border-color: rgba(255, 255, 255, 0.5); // Optional: Change border color on hover for effect
+    }
+
+    .effect {
+        display: block;
+        &::before, &::after {
+            content: "";
+            width: 2px; // Initial width of the effect lines
+            height: 0; // Initial height is zero, extends on hover
+            position: absolute;
+            background: #fff; // White color for effects
+            transition: all 0.2s linear; // Smooth transition for effects
+        }
+    }
+
+    &::before, &::after {
+        content: "";
+        width: 0; // Initial width is zero, extends on hover
+        height: 2px; // Height of the horizontal effect lines
+        position: absolute;
+        background: #fff; // White color for these lines
+        transition: all 0.2s linear; // Transition timing
+    }
+
+
+
+    &:hover {
+        color: $white; // Keeps the text color white on hover
+        background: transparent; // Makes background transparent on hover
+        &::before, &::after {
+            width: 100%; // Extends the before and after effects to full width
+        }
+        .effect {
+            &::before, &::after {
+                height: 100%; // Extends the before and after effects to full height
+            }
+        }
+    }
+    &.btn-effect {
+        &::before {
+            left: 50%;
+            top: 0;
+            transition-duration: 0.3s;
+            z-index: 1;
+        }
+        &::after {
+            left: 50%;
+            bottom: 0;
+            transition-duration: 0.3s;
+            z-index: 1;
+        }
+        .effect {
+            &::before {
+                left: 0;
+                top: 50%;
+                transition-duration: 0.3s;
+            }
+            &::after {
+                right: 0;
+                top: 50%;
+                transition-duration: 0.3s;
+            }
+        }
+        &:hover {
+            &::after,
+            &::before {
+                left: 0;
+            }
+            .effect {
+                &::after,
+                &::before {
+                    top: 0;
+                } 
+            }
+        }
+    } 
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    @include transition3;
+}
