@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, forwardRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 
 const ThreeBackground = forwardRef((props, ref) => {
   const rendererRef = useRef(null);
@@ -23,8 +26,19 @@ const ThreeBackground = forwardRef((props, ref) => {
     // Lighting setup
     const pointLight = new THREE.PointLight(0xffffff);
     pointLight.position.set(5, 5, 5);
-    const ambientLight = new THREE.AmbientLight(0xffffff);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); // Modified ambient light intensity
     scene.add(pointLight, ambientLight);
+
+    // Postprocessing setup
+    const composer = new EffectComposer(renderer);
+    const renderPass = new RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+    bloomPass.threshold = 0.21;
+    bloomPass.strength = 1.12;
+    bloomPass.radius = 0.55;
+    composer.addPass(bloomPass);
 
     // Torus geometry
     const torusGeometry = new THREE.TorusGeometry(10, 3, 16, 100);
@@ -39,7 +53,7 @@ const ThreeBackground = forwardRef((props, ref) => {
       const star = new THREE.Mesh(starGeometry, starMaterial);
       const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100));
       star.position.set(x, y, z);
-      scene.add(star);
+      //scene.add(star);
     }
     Array(200).fill().forEach(addStar);
 
@@ -124,7 +138,8 @@ const ThreeBackground = forwardRef((props, ref) => {
         mixerRef.current.update(delta);
       }
 
-      renderer.render(scene, camera);
+      // Use composer instead of renderer to render the scene
+      composer.render();
     };
     animate();
 
