@@ -54,7 +54,7 @@ const ThreeBackground = forwardRef((props, ref) => {
     const spaceTexture = new THREE.TextureLoader().load('space.jpg');
     scene.background = spaceTexture;
 
-// Add the 'jasongodfrey.png' texture to the scene
+// Add the 'jasongodfreydev.png' texture to the scene
 const textureLoader = new THREE.TextureLoader();
 
 // Log when starting to load the texture
@@ -72,14 +72,19 @@ const jasongodfreyTexture = textureLoader.load(
   }
 );
 
-const jasongodfreyGeometry = new THREE.PlaneGeometry(500, 50);
+const jasongodfreyGeometry = new THREE.PlaneGeometry(200, 43);
 console.log('Geometry created:', jasongodfreyGeometry);
 
-const jasongodfreyMaterial = new THREE.MeshBasicMaterial({ map: jasongodfreyTexture, transparent: true });
+// Adjust the opacity here
+const jasongodfreyMaterial = new THREE.MeshBasicMaterial({
+  map: jasongodfreyTexture,
+  transparent: true,
+  opacity: 0.285 // Set to your desired opacity level (0.0 to 1.0)
+});
 console.log('Material created:', jasongodfreyMaterial);
 
 const jasongodfreyMesh = new THREE.Mesh(jasongodfreyGeometry, jasongodfreyMaterial);
-jasongodfreyMesh.position.set(0, 0, -27);
+jasongodfreyMesh.position.set(0, 30, -270);
 console.log('Mesh created:', jasongodfreyMesh);
 
 scene.add(jasongodfreyMesh);
@@ -260,6 +265,11 @@ console.log('Mesh added to the scene:', jasongodfreyMesh);
         star.mesh.position.y += offsetY;
         star.interaction.position.copy(star.mesh.position);
       });
+
+       // Pulse opacity of the jasongodfreyMesh
+      const time = clock.getElapsedTime();
+      jasongodfreyMesh.material.opacity = 0.285 + 0.1 * Math.sin(time * 2); // Adjust 0.1 to change the pulse amplitude
+
 
       composer.render();
     };
