@@ -27,9 +27,21 @@ import { Link } from 'react-router-dom'
 import img1 from '../assets/images/background/bg-ft.png';
 import img2 from '../assets/images/background/bg-ft2.png';
 
+import ScrollProgress from '../components/ScrollProgress';
+
 
 function HomeOne(props) {
     const threeBackgroundRef = useRef(null);
+
+    const aboutRef = useRef(null);
+    const projectRef = useRef(null);
+    const contactRef = useRef(null);
+
+    const sections = {
+        About: aboutRef,
+        Project: projectRef,
+        Contact: contactRef
+    };
 
     // State to hold the dynamic style for the Project component
     const [projectStyle, setProjectStyle] = useState({ position: 'relative', top: '-400px' });
@@ -73,16 +85,44 @@ function HomeOne(props) {
     };
 
     // In your HomeOne or equivalent component
-const contactFormRef = useRef(null);  // Set this ref on your contact form
+    const contactFormRef = useRef(null);  // Set this ref on your contact form
 
-const scrollToContact = () => {
-    contactFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-};
+    const scrollToContact = () => {
+        contactFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
 
-
+    const fullScreenSection = {
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        backgroundColor: 'transparent',
+        textAlign: 'center',
+        color: '#fff', // Adjust text color for visibility
+    };
+        // Styles for the image
+        const pixelatedStyle = {
+            maxWidth: '80%',
+            height: 'auto',
+            imageRendering: 'pixelated', // Apply the pixelated effect
+            transition: 'opacity 2s ease', // Optional: smooth fade-in effect
+            opacity: 0, // Initial state for the fade-in effect
+        };
     
+        // Apply fade-in effect on image load
+        const handleImageLoad = (event) => {
+            event.target.style.opacity = 1; // Fully opaque when the image is loaded
+        };
+
+
     return (
         <div className='home-1' style={homeStyle}>
+              <ScrollProgress sections={sections} />
+            <div ref={aboutRef} id="About" style={{ height: '100vh' }}>About Section</div>
+            <div ref={projectRef} id="Project" style={{ height: '100vh' }}>Project Section</div>
+            <div ref={contactRef} id="Contact" style={{ height: '100vh' }}>Contact Section</div>
             <ThreeBackground style={{
                 position: 'fixed',
                 top: '50%',
@@ -95,13 +135,26 @@ const scrollToContact = () => {
                 zIndex: -1,
                 objectFit: 'cover',
             }} />
-            <Slider data={dataSlider} /> 
 
-              <div style={projectStyle}>
+            <section style={fullScreenSection}>
+
+                <h1> <img
+                        src="/jasongodfreydev.png"
+                        alt="Samurai Studios"
+                        style={pixelatedStyle}
+                        onLoad={handleImageLoad} // Trigger fade-in effect
+                    /></h1>
+            </section>
+
+            <Slider data={dataSlider} />
+            {/* Blank full-screen section */}
+
+
+            <div style={projectStyle}>
                 <Project data={dataProject} />
-            </div> 
+            </div>
             <About data={dataAbout} style={{ position: 'relative', top: '-150px' }} />
-          {/*  <Blog data={dataBlog} /> */}
+            {/*  <Blog data={dataBlog} /> */}
             {/* Uncomment these sections if needed */}
             {/* <RoadMap data={dataRoadmap} /> */}
             {/* <Work data={dataWork} /> */}
@@ -109,41 +162,41 @@ const scrollToContact = () => {
             {/* <Partner data={dataPartner} /> */}
             {/* <FAQ data={dataFaq} /> */}
             <div>
-            <PageTitle title='Contact ' />
+                <PageTitle title='Contact ' />
 
-            <section className="tf-section tf-contact">
-            <div className="container">
-    <div className="row">
-        <div className="col-12">
-            <div className="content-about m-b50 mobie-40" data-aos="fade-right" data-aos-duration="800">
-                <div className="tf-title st2 m-b17">
-                    <h4 className="title">Contact Us</h4>
-                </div>
-                <p className="m-r-40">Thank you for your interest. Please contact us if you have any interest or question regarding web design, graphic design, digital marketing, and other design and general web-related services we provide. We will propose an appropriate service according to what our client needs. (Initial consultation is free.) We will respond to your inquiry as soon as possible.</p>
-            </div>
-            <form action="contact/contact-process.php" className="form-contact" id="contactform" data-aos="fade-right" data-aos-duration="800">
-                <fieldset>
-                    <input type="text" name="name" id="name" placeholder="Name" />
-                </fieldset>
-                <fieldset>
-                    <input type="email" name="mail" id="mail" placeholder="Email Address" />
-                </fieldset>
-                <fieldset>
-                    <input type="number" name="phone" id="phone" placeholder="Phone" />
-                </fieldset>
-                <fieldset>
-                    <textarea placeholder="Type your Message" rows="5" tabIndex="4" name="message" className="message" id="message"></textarea>
-                </fieldset>
-                <button className="tf-button btn-effect" type="submit" style={{ display: 'block', margin: '0 auto' }}>
-    <span className="boder-fade"></span>
-    <span className="effect">Send Message</span>
-</button>
+                <section className="tf-section tf-contact">
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-12">
+                                <div className="content-about m-b50 mobie-40" data-aos="fade-right" data-aos-duration="800">
+                                    <div className="tf-title st2 m-b17">
+                                        <h4 className="title">Contact Us</h4>
+                                    </div>
+                                    <p className="m-r-40">Thank you for your interest. Please contact us if you have any interest or question regarding web design, graphic design, digital marketing, and other design and general web-related services we provide. We will propose an appropriate service according to what our client needs. (Initial consultation is free.) We will respond to your inquiry as soon as possible.</p>
+                                </div>
+                                <form action="contact/contact-process.php" className="form-contact" id="contactform" data-aos="fade-right" data-aos-duration="800">
+                                    <fieldset>
+                                        <input type="text" name="name" id="name" placeholder="Name" />
+                                    </fieldset>
+                                    <fieldset>
+                                        <input type="email" name="mail" id="mail" placeholder="Email Address" />
+                                    </fieldset>
+                                    <fieldset>
+                                        <input type="number" name="phone" id="phone" placeholder="Phone" />
+                                    </fieldset>
+                                    <fieldset>
+                                        <textarea placeholder="Type your Message" rows="5" tabIndex="4" name="message" className="message" id="message"></textarea>
+                                    </fieldset>
+                                    <button className="tf-button btn-effect" type="submit" style={{ display: 'block', margin: '0 auto' }}>
+                                        <span className="boder-fade"></span>
+                                        <span className="effect">Send Message</span>
+                                    </button>
 
-            </form>
-        </div>
+                                </form>
+                            </div>
 
 
-                     {/*  <div className="col-xl-7  col-md-12">
+                            {/*  <div className="col-xl-7  col-md-12">
                             <div className="contact-details" data-aos="fade-left" data-aos-duration="800">
                                 <div className="adress wrap-fx">
                                     <div className="location">
@@ -165,17 +218,17 @@ const scrollToContact = () => {
                                 </div>
                             </div>
                         </div> */}
+                        </div>
                     </div>
-                </div>
-            </section>
-        </div>
+                </section>
+            </div>
 
 
-        <footer id="footer">
-            <div className="footer-main">
-                <img src={img1} alt="" className="bg1" />
-                <img src={img2} alt="" className="bg2" />
-               {/*  <div className="container">
+            <footer id="footer">
+                <div className="footer-main">
+                    <img src={img1} alt="" className="bg1" />
+                    <img src={img2} alt="" className="bg2" />
+                    {/*  <div className="container">
                     <ul className="widget-social">
                         <li>
                             <Link to="#">
@@ -228,14 +281,14 @@ const scrollToContact = () => {
                         <button className="tf-button-st2 btn-effect" type="submit" id="subscribe-button"> <span className="effect">Subscribe</span></button>
                     </form> 
                 </div>  */}
-                    </div> 
-            <div className="footer-bottom">
-                <div className="container">
-                    <div className="wrap-fx">
-                        <div className="Copyright">
-                            <p>Samurai Studios 2024 - All rights reserved</p>
-                        </div>
-                     {/*   <ul className="list">
+                </div>
+                <div className="footer-bottom">
+                    <div className="container">
+                        <div className="wrap-fx">
+                            <div className="Copyright">
+                                <p>Samurai Studios 2024 - All rights reserved</p>
+                            </div>
+                            {/*   <ul className="list">
                             <li>
                                 <Link to="#">Privacy Policy</Link>
                             </li>
@@ -250,19 +303,19 @@ const scrollToContact = () => {
                             </li>
                         </ul>
         */}
+                        </div>
                     </div>
+
                 </div>
-                
-            </div>
 
-            {
-                isVisible &&
-                <Link onClick={scrollToTop} to='#' id="scroll-top"></Link>
-            }
-        </footer>
+                {
+                    isVisible &&
+                    <Link onClick={scrollToTop} to='#' id="scroll-top"></Link>
+                }
+            </footer>
 
 
-        
+
         </div>
     );
 }
