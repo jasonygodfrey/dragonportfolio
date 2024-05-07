@@ -1,42 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+
 
 const ScrollProgress = ({ sections }) => {
-    const [activeSection, setActiveSection] = useState('');
+    const [isVisible, setIsVisible] = useState(false);
 
     const handleScroll = () => {
-        const scrollPosition = window.pageYOffset;
-        const active = Object.keys(sections).find(key => {
-            const section = sections[key].current;
-            if (section) {
-                return (
-                    section.offsetTop <= scrollPosition &&
-                    section.offsetTop + section.offsetHeight > scrollPosition
-                );
-            }
-            return false;
-        });
-        setActiveSection(active);
+        setIsVisible(window.pageYOffset > 0);
     };
 
     useEffect(() => {
         window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
     }, []);
 
     return (
-        <div className="scroll-progress">
-            {Object.keys(sections).map(key => (
-                <a
-                    key={key}
-                    href={`#${key}`}
+        <div className={`scroll-progress ${isVisible ? 'visible' : ''}`}>
+            {Object.keys(sections).map((section, index) => (
+                <Link
+                    key={index}
+                    to={`#${section}`}
+                    className={window.location.hash === `#${section}` ? 'active' : ''}
                     onClick={(e) => {
                         e.preventDefault();
-                        sections[key].current.scrollIntoView({ behavior: 'smooth' });
+                        sections[section].current.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className={activeSection === key ? 'active' : ''}
                 >
-                    {key}
-                </a>
+                    {section}
+                </Link>
             ))}
         </div>
     );

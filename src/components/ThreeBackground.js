@@ -54,6 +54,37 @@ const ThreeBackground = forwardRef((props, ref) => {
     const spaceTexture = new THREE.TextureLoader().load('space.jpg');
     scene.background = spaceTexture;
 
+// Add the 'jasongodfrey.png' texture to the scene
+const textureLoader = new THREE.TextureLoader();
+
+// Log when starting to load the texture
+console.log('Loading texture: jasongodfrey.png');
+const jasongodfreyTexture = textureLoader.load(
+  'jasongodfreydev.png',
+  function (texture) {
+    // Texture loaded successfully
+    console.log('Texture loaded:', texture);
+  },
+  undefined, // Progress callback
+  function (err) {
+    // Error callback
+    console.error('An error occurred loading the texture:', err);
+  }
+);
+
+const jasongodfreyGeometry = new THREE.PlaneGeometry(500, 50);
+console.log('Geometry created:', jasongodfreyGeometry);
+
+const jasongodfreyMaterial = new THREE.MeshBasicMaterial({ map: jasongodfreyTexture, transparent: true });
+console.log('Material created:', jasongodfreyMaterial);
+
+const jasongodfreyMesh = new THREE.Mesh(jasongodfreyGeometry, jasongodfreyMaterial);
+jasongodfreyMesh.position.set(0, 0, -27);
+console.log('Mesh created:', jasongodfreyMesh);
+
+scene.add(jasongodfreyMesh);
+console.log('Mesh added to the scene:', jasongodfreyMesh);
+
     const stars = [];
     function addStar() {
       const starGeometry = new THREE.SphereGeometry(0.045, 24, 24);

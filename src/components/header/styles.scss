@@ -56,9 +56,10 @@
         height: 120px;
         left: 0;
         width: 100%;
-        background: linear-gradient(135deg, #090808 0%, #2b2b2b 100%);
+        background: linear-gradient(135deg, rgba(9, 8, 8, 0.7) 0%, rgba(43, 43, 43, 0.7) 100%); /* Adjusted opacity */
         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2), inset 0px 1px 0px rgba(255, 255, 255, 0.1);
     }
+    
 }
 
 // Update other necessary parts for responsiveness and theme consistency

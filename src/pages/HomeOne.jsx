@@ -28,18 +28,23 @@ import img1 from '../assets/images/background/bg-ft.png';
 import img2 from '../assets/images/background/bg-ft2.png';
 
 import ScrollProgress from '../components/ScrollProgress';
+import ScrollToDiscover from '../components/ScrollToDiscover'; // Import the component
 
 
 function HomeOne(props) {
     const threeBackgroundRef = useRef(null);
 
     const aboutRef = useRef(null);
-    const projectRef = useRef(null);
+    const gamedevRef = useRef(null);
+    const webdevRef = useRef(null);
+
     const contactRef = useRef(null);
+    
 
     const sections = {
         About: aboutRef,
-        Project: projectRef,
+        WebDev: webdevRef,
+        GameDev: gamedevRef,
         Contact: contactRef
     };
 
@@ -119,9 +124,21 @@ function HomeOne(props) {
 
     return (
         <div className='home-1' style={homeStyle}>
+                       <section style={fullScreenSection}>
+
+{/* <h1> <img
+        src="/jasongodfreydev.png"
+        alt="Samurai Studios"
+        style={pixelatedStyle}
+        onLoad={handleImageLoad} // Trigger fade-in effect
+    /></h1>  */}
+</section>
+
               <ScrollProgress sections={sections} />
             <div ref={aboutRef} id="About" style={{ height: '100vh' }}>About Section</div>
-            <div ref={projectRef} id="Project" style={{ height: '100vh' }}>Project Section</div>
+            <div ref={webdevRef} id="WebDev" style={{ height: '100vh' }}>Web Dev</div>
+            <div ref={gamedevRef} id="GameDev" style={{ height: '100vh' }}>Game Dev</div>
+
             <div ref={contactRef} id="Contact" style={{ height: '100vh' }}>Contact Section</div>
             <ThreeBackground style={{
                 position: 'fixed',
@@ -136,15 +153,7 @@ function HomeOne(props) {
                 objectFit: 'cover',
             }} />
 
-            <section style={fullScreenSection}>
 
-                <h1> <img
-                        src="/jasongodfreydev.png"
-                        alt="Samurai Studios"
-                        style={pixelatedStyle}
-                        onLoad={handleImageLoad} // Trigger fade-in effect
-                    /></h1>
-            </section>
 
             <Slider data={dataSlider} />
             {/* Blank full-screen section */}
