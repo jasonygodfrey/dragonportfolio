@@ -24,6 +24,15 @@ const ThreeBackground = forwardRef((props, ref) => {
   const damping = 0.1; // Damping for smooth stop
   const returnSpeed = 2; // Speed for returning to initial position when not hovered
 
+  const move = {
+    forward: false,
+    backward: false,
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+  };
+
   useEffect(() => {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
@@ -54,41 +63,47 @@ const ThreeBackground = forwardRef((props, ref) => {
     const spaceTexture = new THREE.TextureLoader().load('space.jpg');
     scene.background = spaceTexture;
 
-// Add the 'jasongodfreydev.png' texture to the scene
-const textureLoader = new THREE.TextureLoader();
+    // Add the 'jasongodfreydev.png' texture to the scene
+    const textureLoader = new THREE.TextureLoader();
 
-// Log when starting to load the texture
-console.log('Loading texture: jasongodfrey.png');
-const jasongodfreyTexture = textureLoader.load(
-  'jasongodfreydev.png',
-  function (texture) {
-    // Texture loaded successfully
-    console.log('Texture loaded:', texture);
-  },
-  undefined, // Progress callback
-  function (err) {
-    // Error callback
-    console.error('An error occurred loading the texture:', err);
-  }
-);
+    console.log('Loading texture: jasongodfrey.png');
+    const jasongodfreyTexture = textureLoader.load(
+      'jasongodfreydev.png',
+      function (texture) {
+        // Texture loaded successfully
+        console.log('Texture loaded:', texture);
+      },
+      undefined, // Progress callback
+      function (err) {
+        // Error callback
+        console.error('An error occurred loading the texture:', err);
+      }
+    );
 
-const jasongodfreyGeometry = new THREE.PlaneGeometry(200, 43);
-console.log('Geometry created:', jasongodfreyGeometry);
+    // Scale to fit the screen width and maintain the original aspect ratio
+    const originalWidth = 200; // Example original width of the image
+    const originalHeight = 43; // Example original height of the image
+    const aspectRatio = originalWidth / originalHeight;
+    const screenWidth = window.innerWidth;
+    const jasongodfreyWidth = screenWidth * 0.5; // Scale it to 50% of screen width
+    const jasongodfreyHeight = jasongodfreyWidth / aspectRatio;
 
-// Adjust the opacity here
-const jasongodfreyMaterial = new THREE.MeshBasicMaterial({
-  map: jasongodfreyTexture,
-  transparent: true,
-  opacity: 0.285 // Set to your desired opacity level (0.0 to 1.0)
-});
-console.log('Material created:', jasongodfreyMaterial);
+    const jasongodfreyGeometry = new THREE.PlaneGeometry(jasongodfreyWidth, jasongodfreyHeight);
+    console.log('Geometry created:', jasongodfreyGeometry);
 
-const jasongodfreyMesh = new THREE.Mesh(jasongodfreyGeometry, jasongodfreyMaterial);
-jasongodfreyMesh.position.set(0, 30, -270);
-console.log('Mesh created:', jasongodfreyMesh);
+    const jasongodfreyMaterial = new THREE.MeshBasicMaterial({
+      map: jasongodfreyTexture,
+      transparent: true,
+      opacity: 0.000000000000025, // Set to your desired opacity level (0.0 to 1.0)
+    });
+    console.log('Material created:', jasongodfreyMaterial);
 
-scene.add(jasongodfreyMesh);
-console.log('Mesh added to the scene:', jasongodfreyMesh);
+    const jasongodfreyMesh = new THREE.Mesh(jasongodfreyGeometry, jasongodfreyMaterial);
+    jasongodfreyMesh.position.set(0, 30, -270);
+    console.log('Mesh created:', jasongodfreyMesh);
+
+    scene.add(jasongodfreyMesh);
+    console.log('Mesh added to the scene:', jasongodfreyMesh);
 
     const stars = [];
     function addStar() {
@@ -165,40 +180,66 @@ console.log('Mesh added to the scene:', jasongodfreyMesh);
     const moveUp = new THREE.Vector3(0, 1, 0);
 
     const onKeyDown = (event) => {
-      switch (event.key) {
+      switch (event.key.toLowerCase()) {
         case 'w':
-          moveForward.setFromMatrixColumn(camera.matrix, 0);
-          camera.position.addScaledVector(moveForward, 1);
+          move.forward = true;
           break;
         case 's':
-          moveForward.setFromMatrixColumn(camera.matrix, 0);
-          camera.position.subScaledVector(moveForward, 1);
+          move.backward = true;
           break;
         case 'a':
-          moveRight.setFromMatrixColumn(camera.matrix, 0);
-          camera.position.subScaledVector(moveRight, 1);
+          move.left = true;
           break;
         case 'd':
-          moveRight.setFromMatrixColumn(camera.matrix, 0);
-          camera.position.addScaledVector(moveRight, 1);
+          move.right = true;
           break;
         case 'q':
-          camera.position.addScaledVector(moveUp, 1);
+          move.up = true;
           break;
         case 'e':
-          camera.position.subScaledVector(moveUp, 1);
+          move.down = true;
           break;
-        default:
+      }
+    };
+
+    const onKeyUp = (event) => {
+      switch (event.key.toLowerCase()) {
+        case 'w':
+          move.forward = false;
+          break;
+        case 's':
+          move.backward = false;
+          break;
+        case 'a':
+          move.left = false;
+          break;
+        case 'd':
+          move.right = false;
+          break;
+        case 'q':
+          move.up = false;
+          break;
+        case 'e':
+          move.down = false;
           break;
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+
+    const updateOpacityOnScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const opacity = Math.max(0, 1 - scrollTop * 0.002); // Adjust the factor for fading
+      jasongodfreyMesh.material.opacity = opacity;
+    };
 
     const updateCameraPosition = () => {
       const scrollTop = document.body.getBoundingClientRect().top;
       camera.position.z = 30 + scrollTop * 0.1;
       camera.position.x = -3 + scrollTop * -0.0002;
+      
+      updateOpacityOnScroll(); // Call the function to update opacity
     };
 
     updateCameraPosition();
@@ -222,6 +263,8 @@ console.log('Mesh added to the scene:', jasongodfreyMesh);
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
       mixers.current.forEach((mixer) => mixer.update(delta));
+
+      updateOpacityOnScroll(); // Call the function to update opacity based on scroll
 
       currentMousePosition.current.x += (targetMousePosition.current.x - currentMousePosition.current.x) * 0.1;
       currentMousePosition.current.y += (targetMousePosition.current.y - currentMousePosition.current.y) * 0.1;
@@ -266,10 +309,34 @@ console.log('Mesh added to the scene:', jasongodfreyMesh);
         star.interaction.position.copy(star.mesh.position);
       });
 
-       // Pulse opacity of the jasongodfreyMesh
+      // Pulse opacity of the jasongodfreyMesh
       const time = clock.getElapsedTime();
-      jasongodfreyMesh.material.opacity = 0.285 + 0.1 * Math.sin(time * 2); // Adjust 0.1 to change the pulse amplitude
+      //jasongodfreyMesh.material.opacity = 0.285 + 0.1 * Math.sin(time * 2); // Adjust 0.1 to change the pulse amplitude
 
+      // Move the camera based on the movement keys
+      const moveSpeed = 10 * delta;
+      if (move.forward) {
+        moveForward.setFromMatrixColumn(camera.matrix, 0).negate();
+        camera.position.addScaledVector(moveForward, moveSpeed);
+      }
+      if (move.backward) {
+        moveForward.setFromMatrixColumn(camera.matrix, 0);
+        camera.position.addScaledVector(moveForward, moveSpeed);
+      }
+      if (move.left) {
+        moveRight.setFromMatrixColumn(camera.matrix, 0).negate();
+        camera.position.addScaledVector(moveRight, moveSpeed);
+      }
+      if (move.right) {
+        moveRight.setFromMatrixColumn(camera.matrix, 0);
+        camera.position.addScaledVector(moveRight, moveSpeed);
+      }
+      if (move.up) {
+        camera.position.y += moveSpeed;
+      }
+      if (move.down) {
+        camera.position.y -= moveSpeed;
+      }
 
       composer.render();
     };
@@ -277,6 +344,7 @@ console.log('Mesh added to the scene:', jasongodfreyMesh);
 
     return () => {
       window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
       window.removeEventListener('mousemove', onMouseMove);
       mixers.current.forEach((mixer) => mixer.stopAllAction());
       renderer.dispose();

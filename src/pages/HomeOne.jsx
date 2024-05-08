@@ -133,13 +133,15 @@ function HomeOne(props) {
         onLoad={handleImageLoad} // Trigger fade-in effect
     /></h1>  */}
 </section>
-
-              <ScrollProgress sections={sections} />
+{/*
+           <ScrollProgress sections={sections} />
             <div ref={aboutRef} id="About" style={{ height: '100vh' }}>About Section</div>
             <div ref={webdevRef} id="WebDev" style={{ height: '100vh' }}>Web Dev</div>
             <div ref={gamedevRef} id="GameDev" style={{ height: '100vh' }}>Game Dev</div>
 
             <div ref={contactRef} id="Contact" style={{ height: '100vh' }}>Contact Section</div>
+        */}
+
             <ThreeBackground style={{
                 position: 'fixed',
                 top: '50%',
