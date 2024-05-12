@@ -32,6 +32,9 @@ const ThreeBackground = forwardRef((props, ref) => {
     up: false,
     down: false,
   };
+  const dragonRef = useRef(null);
+  const animationTriggered = useRef(false);
+
 
   useEffect(() => {
     const scene = new THREE.Scene();
@@ -95,11 +98,12 @@ const ThreeBackground = forwardRef((props, ref) => {
       map: jasongodfreyTexture,
       transparent: true,
       opacity: 0.000000000000025, // Set to your desired opacity level (0.0 to 1.0)
+    
     });
     console.log('Material created:', jasongodfreyMaterial);
 
     const jasongodfreyMesh = new THREE.Mesh(jasongodfreyGeometry, jasongodfreyMaterial);
-    jasongodfreyMesh.position.set(0, 30, -270);
+    jasongodfreyMesh.position.set(0, -30, -270);
     console.log('Mesh created:', jasongodfreyMesh);
 
     scene.add(jasongodfreyMesh);
@@ -143,22 +147,77 @@ const ThreeBackground = forwardRef((props, ref) => {
     }
     Array(400).fill().forEach(addStar);
 
-    const loader = new GLTFLoader();
-    loader.load('blue_dragon/scene.gltf', (gltf) => {
-      const dragon = gltf.scene;
-      dragon.scale.set(10000, 10000, 10000);
-      dragon.position.set(0, -250, -300);
-      scene.add(dragon);
 
-      const dragonMixer = new THREE.AnimationMixer(dragon);
-      mixers.current.push(dragonMixer);
-      if (gltf.animations.length > 0) {
-        const action = dragonMixer.clipAction(gltf.animations[0]);
-        action.play();
-      }
+    const loader = new GLTFLoader();
+
+      loader.load('blue_dragon/scene.gltf', (gltf) => {
+        const dragon = gltf.scene;
+        dragon.scale.set(10000, 10000, 10000);
+        dragon.position.set(0, -250, -300);
+        scene.add(dragon);
+        dragonRef.current = dragon;
+        const dragonMixer = new THREE.AnimationMixer(dragon);
+        mixers.current.push(dragonMixer);
+    
+        let currentAction = dragonMixer.clipAction(gltf.animations[0]);
+        currentAction.play();
+    
+        const handleScroll = () => {
+          const scrollPercentage = (window.scrollY / document.body.scrollHeight) * 100;
+          console.log(`Scroll Percentage: ${scrollPercentage}%`);  // Log the scroll percentage
+        
+          if (scrollPercentage >= 10 && !animationTriggered.current) {
+            console.log("Triggering animation [2]");
+            animationTriggered.current = true;
+            if (gltf.animations.length > 1) {
+              currentAction.stop();  // Stop the current action immediately
+              const secondAction = dragonMixer.clipAction(gltf.animations[2]);
+              secondAction.reset();
+              secondAction.play();
+              secondAction.clampWhenFinished = true;
+              //secondAction.loop = THREE.LoopOnce;  // Ensure it only plays once
+              
+        
+              // Add listener for when animation finishes
+              secondAction.addEventListener('finished', () => {
+                secondAction.stop();
+                currentAction = dragonMixer.clipAction(gltf.animations[0]);
+                currentAction.reset();
+                currentAction.play();
+                animationTriggered.current = false;  // Reset trigger state
+              });
+            }
+          }
+        };
+        
+  
+      window.addEventListener('scroll', handleScroll);
+  
+  
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+      };
     }, undefined, function (error) {
       console.error('An error happened loading the GLTF model:', error);
     });
+
+    const updateDragonWireframe = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollFraction = scrollTop / maxScroll;
+      const wireframe = scrollFraction > 1.0; // Change to wireframe halfway through scrolling
+    
+      if (dragonRef.current) {
+        dragonRef.current.traverse((child) => {
+          if (child.isMesh) {
+            child.material.wireframe = wireframe;
+          }
+        });
+      }
+    };
+    
+    window.addEventListener('scroll', updateDragonWireframe, false);
+    
 
     loader.load('/portal/scene.gltf', (gltf) => {
       const portal = gltf.scene;
@@ -230,13 +289,14 @@ const ThreeBackground = forwardRef((props, ref) => {
 
     const updateOpacityOnScroll = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const opacity = Math.max(0, 1 - scrollTop * 0.002); // Adjust the factor for fading
+      const opacity = Math.max(0, 0.2 - scrollTop * 0.0001); // Adjust the factor for fading
       jasongodfreyMesh.material.opacity = opacity;
+      
     };
 
     const updateCameraPosition = () => {
       const scrollTop = document.body.getBoundingClientRect().top;
-      camera.position.z = 30 + scrollTop * 0.1;
+      camera.position.z = 30 + scrollTop * 0.02;
       camera.position.x = -3 + scrollTop * -0.0002;
       
       updateOpacityOnScroll(); // Call the function to update opacity
@@ -314,7 +374,7 @@ const ThreeBackground = forwardRef((props, ref) => {
       //jasongodfreyMesh.material.opacity = 0.285 + 0.1 * Math.sin(time * 2); // Adjust 0.1 to change the pulse amplitude
 
       // Move the camera based on the movement keys
-      const moveSpeed = 10 * delta;
+      const moveSpeed = 30 * delta;
       if (move.forward) {
         moveForward.setFromMatrixColumn(camera.matrix, 0).negate();
         camera.position.addScaledVector(moveForward, moveSpeed);

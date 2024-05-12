@@ -30,11 +30,11 @@
             height: 944px;
         }
         .box-slider__main {
-            padding: 259px 0 0;
+            //padding: 259px 0 0;
 
             // Custom media query for mobile devices
             @media (max-width: 768px) {
-                padding: 159px 0 0; // Reduced the top padding by 100px
+                //padding: 159px 0 0; // Reduced the top padding by 100px
             }
         }
         .content-box {
