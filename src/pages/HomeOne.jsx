@@ -22,6 +22,7 @@ import dataPartner from '../assets/fake-data/data-partner';
 import FAQ from '../features/faq';
 import dataFaq from '../assets/fake-data/data-faq';
 import ThreeBackground from '../components/ThreeBackground';
+import ThreeBackground2 from '../components/ThreeBackground2';
 import PageTitle from '../components/pagetitle';
 import { Link } from 'react-router-dom'
 import img1 from '../assets/images/background/bg-ft.png';
@@ -121,10 +122,39 @@ function HomeOne(props) {
             event.target.style.opacity = 1; // Fully opaque when the image is loaded
         };
 
+    // State and effect for pre Three.js scene div
+    const [showScene, setShowScene] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowScene(false);
+        }, 15000);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <div className='home-1' style={homeStyle}>
-                       <section style={fullScreenSection}>
+            {showScene && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    zIndex: 9999999,
+                }}>
+                    <ThreeBackground2 style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                    }} />
+                </div>
+            )}
+            <section style={fullScreenSection}>
 
 {/* <h1> <img
         src="/jasongodfreydev.png"
