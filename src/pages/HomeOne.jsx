@@ -128,7 +128,7 @@ function HomeOne(props) {
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowScene(false);
-        }, 15000);
+        }, 10000);
 
         return () => clearTimeout(timer);
     }, []);

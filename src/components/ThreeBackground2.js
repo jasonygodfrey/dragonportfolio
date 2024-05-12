@@ -38,7 +38,7 @@ const ThreeBackground2 = forwardRef((props, ref) => {
 
   useEffect(() => {
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000000000000);
     const renderer = new THREE.WebGLRenderer({
       canvas: rendererRef.current,
       antialias: true,
@@ -48,6 +48,10 @@ const ThreeBackground2 = forwardRef((props, ref) => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.position.setZ(30);
     camera.position.setX(-3);
+
+    // Rotate the camera to the right
+    //camera.rotation.y = Math.PI / 4; // Rotate the camera to the right by 45 degrees
+
 
     const composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
@@ -223,16 +227,25 @@ const ThreeBackground2 = forwardRef((props, ref) => {
       const portal = gltf.scene;
       portal.scale.set(10000, 10000, 10000);
       portal.position.set(0, -80, -300);
-      portal.rotation.y = Math.PI / 2.2;
+  
+      // Generate a random rotation between 1 and 10 degrees, converted to radians
+      const randomRotationDegrees = 1 + Math.random() * 360; // Generate a number between 1 and 10
+      const randomRotationRadians = randomRotationDegrees * (Math.PI / 180); // Convert degrees to radians
+  
+      portal.rotation.y = randomRotationRadians;
+      portal.rotation.x = randomRotationRadians;
+  
       scene.add(portal);
-
+  
       const portalMixer = new THREE.AnimationMixer(portal);
       mixers.current.push(portalMixer);
       gltf.animations.forEach((clip) => {
-        const action = portalMixer.clipAction(clip);
-        action.play();
+          const action = portalMixer.clipAction(clip);
+          action.play();
       });
-    });
+      portalMixer.timeScale = 0.5;  // Slow down the animation speed
+  });
+  
 
     const moveForward = new THREE.Vector3();
     const moveRight = new THREE.Vector3();
