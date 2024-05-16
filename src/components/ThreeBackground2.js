@@ -149,7 +149,7 @@ const ThreeBackground2 = forwardRef((props, ref) => {
         velocity: new THREE.Vector3(),
       });
     }
-    Array(400).fill().forEach(addStar);
+    Array(0).fill().forEach(addStar);
 
 
     const loader = new GLTFLoader();

@@ -31,6 +31,10 @@ import img2 from '../assets/images/background/bg-ft2.png';
 import ScrollProgress from '../components/ScrollProgress';
 import ScrollToDiscover from '../components/ScrollToDiscover'; // Import the component
 
+import { gsap } from 'gsap';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+
+gsap.registerPlugin(ScrollToPlugin);
 
 function HomeOne(props) {
     const threeBackgroundRef = useRef(null);
@@ -78,11 +82,16 @@ function HomeOne(props) {
         };
     }, []);
 
-    const scrollToTop = () => {  // Scroll to top functionality
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+    const smoothScrollTo = (target) => {
+        gsap.to(window, { duration: 1, scrollTo: { y: target, autoKill: false } });
+    };
+
+    const scrollToTop = () => {
+        smoothScrollTo(0);
+    };
+
+    const scrollToContact = () => {
+        smoothScrollTo(contactRef.current.offsetTop);
     };
 
     const homeStyle = {
@@ -92,10 +101,6 @@ function HomeOne(props) {
 
     // In your HomeOne or equivalent component
     const contactFormRef = useRef(null);  // Set this ref on your contact form
-
-    const scrollToContact = () => {
-        contactFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
 
     const fullScreenSection = {
         width: '100vw',
@@ -128,7 +133,7 @@ function HomeOne(props) {
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowScene(false);
-        }, 10000);
+        }, 1.0000);
 
         return () => clearTimeout(timer);
     }, []);

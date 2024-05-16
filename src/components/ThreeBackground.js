@@ -35,7 +35,6 @@ const ThreeBackground = forwardRef((props, ref) => {
   const dragonRef = useRef(null);
   const animationTriggered = useRef(false);
 
-
   useEffect(() => {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
@@ -109,44 +108,70 @@ const ThreeBackground = forwardRef((props, ref) => {
     scene.add(jasongodfreyMesh);
     console.log('Mesh added to the scene:', jasongodfreyMesh);
 
+
+    const starTexture = textureLoader.load('particles.png'); // Load the new texture
+
     const stars = [];
+    const numArms = 8; // Number of spiral arms
+    const armSeparationAngle = (2 * Math.PI) / numArms;
+    const armOffsetMax = 395.0; // Max distance stars can be offset from the spiral arms
+    const numStars = 1; // Total number of stars
+    const spiralDensity = 0.001; // Density of stars along the spiral
+    const xOffset = 20; // Additional offset to move stars further along the x-axis
+    const yOffset = -55; // Additional offset to move stars further along the y-axis
+    const zOffset = -310; // Additional offset to move stars further along the z-axis
+    
     function addStar() {
-      const starGeometry = new THREE.SphereGeometry(0.045, 24, 24);
+      const starGeometry = new THREE.SphereGeometry(3.65, 440, 440);
       const starColor = new THREE.Color(`hsl(${THREE.MathUtils.randFloat(30, 40)}, 100%, ${THREE.MathUtils.randFloat(50, 70)}%)`);
       const starMaterial = new THREE.MeshStandardMaterial({
-        color: starColor,
+        map: starTexture, // Use the new texture
         emissive: starColor,
-        emissiveIntensity: THREE.MathUtils.randFloat(0.5, 1),
-        opacity: 0.2,
+        emissiveIntensity: THREE.MathUtils.randFloat(0.1, 0.7),
+        opacity: 0.8,
         transparent: true,
       });
       const star = new THREE.Mesh(starGeometry, starMaterial);
-
+    
       const interactionSphere = new THREE.Mesh(
         new THREE.SphereGeometry(2, 8, 8),
         new THREE.MeshBasicMaterial({ visible: false })
       );
-
-      const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100));
-      star.position.set(x, y, z);
+    
+      // Generate a random y value within a narrower range to create a disc shape
+      const y = THREE.MathUtils.randFloatSpread(10) - 15 + yOffset; // Adjust this value to control disc thickness
+    
+      // Calculate spiral galaxy positions
+      const armIndex = Math.floor(Math.random() * numArms);
+      const armAngle = armIndex * armSeparationAngle;
+      const spiralRadius = Math.random() * 50 + 10; // Radius of the spiral
+      const angle = spiralDensity * spiralRadius;
+      const offset = Math.random() * armOffsetMax - armOffsetMax / 2; // Offset to create star distribution around the arm
+    
+      star.position.set(
+        spiralRadius * Math.cos(angle + armAngle) + offset + xOffset,
+        y,
+        spiralRadius * Math.sin(angle + armAngle) + offset + zOffset // Add the zOffset here
+      );
       interactionSphere.position.copy(star.position);
-
+    
       scene.add(star);
       scene.add(interactionSphere);
-
+    
       stars.push({
         mesh: star,
         interaction: interactionSphere,
-        yInitial: y,
-        xInitial: x,
-        zInitial: z,
+        yInitial: star.position.y,
+        xInitial: star.position.x,
+        zInitial: star.position.z,
         defaultColor: starColor,
         hovered: false,
         velocity: new THREE.Vector3(),
       });
     }
-    Array(400).fill().forEach(addStar);
-
+    
+    Array(numStars).fill().forEach(addStar);
+    
 
     const loader = new GLTFLoader();
 
