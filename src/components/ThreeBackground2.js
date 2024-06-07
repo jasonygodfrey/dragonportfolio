@@ -225,8 +225,8 @@ const ThreeBackground2 = forwardRef((props, ref) => {
 
     loader.load('/spacedrive/scene.gltf', (gltf) => {
       const portal = gltf.scene;
-      portal.scale.set(10000, 10000, 10000);
-      portal.position.set(0, -80, -300);
+      portal.scale.set(900, 900, 900);
+      portal.position.set(0, -80, -3);
   
       // Generate a random rotation between 1 and 10 degrees, converted to radians
       const randomRotationDegrees = 1 + Math.random() * 360; // Generate a number between 1 and 10

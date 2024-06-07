@@ -9,7 +9,12 @@ const dataSlider = [
         title: 'The Future of Web Development with Three.js & React',
         desc : 'We sculpt interactive web experiences that captivate and redefine user engagement.',
         bgImg: bgImg1,
-        img : img1
+        img : img1,
+        titleStyle: { 
+            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', 
+            WebkitTextStroke: '100px black', // Adding black outline
+            color: 'white' // Ensuring the text color is visible with the outline
+        }
     },
     {
         id: 2,
@@ -23,7 +28,12 @@ const dataSlider = [
         title: 'The Future of Web Development',
         desc : 'We sculpt interactive web experiences that captivate and redefine user engagement. Specialized Services with Three.js & React.',
         bgImg: bgImg3,
-        classAction: 'three'
+        classAction: 'three',
+        titleStyle: { 
+            textShadow: '20px 20px 40px rgba(0, 0, 0, 0.5)', 
+            WebkitTextStroke: '100px black', // Adding black outline
+            color: 'white' // Ensuring the text color is visible with the outline
+        }
     },
     {
         id: 4,

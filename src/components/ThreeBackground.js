@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, forwardRef } from 'react';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { Raycaster, Vector2 } from 'three';
+import { setupScene } from './setupScene';
+import { createStars } from './createStars';
+import { loadDragon } from './loadDragon';
+import { loadPortal } from './loadPortal';
 
 const ThreeBackground = forwardRef((props, ref) => {
   const rendererRef = useRef(null);
@@ -32,57 +32,22 @@ const ThreeBackground = forwardRef((props, ref) => {
     up: false,
     down: false,
   };
-  const dragonRef = useRef(null);
   const animationTriggered = useRef(false);
 
   useEffect(() => {
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
-    const renderer = new THREE.WebGLRenderer({
-      canvas: rendererRef.current,
-      antialias: true,
-    });
+    const { scene, camera, composer, renderer } = setupScene(rendererRef);
+    const stars = createStars(scene);
 
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.position.setZ(30);
-    camera.position.setX(-3);
-
-    const composer = new EffectComposer(renderer);
-    const renderPass = new RenderPass(scene, camera);
-    composer.addPass(renderPass);
-
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-    bloomPass.threshold = 0.21;
-    bloomPass.strength = 1.12;
-    bloomPass.radius = 0.55;
-    composer.addPass(bloomPass);
-
-    const pointLight = new THREE.PointLight(0xffffff);
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-    scene.add(pointLight, ambientLight);
-
-    const spaceTexture = new THREE.TextureLoader().load('space.jpg');
-    scene.background = spaceTexture;
-
-    // Add the 'jasongodfreydev.png' texture to the scene
     const textureLoader = new THREE.TextureLoader();
-
-    console.log('Loading texture: jasongodfrey.png');
+    
+    // Load and setup the jasongodfreydev.png texture
     const jasongodfreyTexture = textureLoader.load(
       'jasongodfreydev.png',
-      function (texture) {
-        // Texture loaded successfully
-        console.log('Texture loaded:', texture);
-      },
-      undefined, // Progress callback
-      function (err) {
-        // Error callback
-        console.error('An error occurred loading the texture:', err);
-      }
+      (texture) => console.log('Texture loaded:', texture),
+      undefined,
+      (err) => console.error('An error occurred loading the texture:', err)
     );
 
-    // Scale to fit the screen width and maintain the original aspect ratio
     const originalWidth = 200; // Example original width of the image
     const originalHeight = 43; // Example original height of the image
     const aspectRatio = originalWidth / originalHeight;
@@ -91,173 +56,56 @@ const ThreeBackground = forwardRef((props, ref) => {
     const jasongodfreyHeight = jasongodfreyWidth / aspectRatio;
 
     const jasongodfreyGeometry = new THREE.PlaneGeometry(jasongodfreyWidth, jasongodfreyHeight);
-    console.log('Geometry created:', jasongodfreyGeometry);
-
     const jasongodfreyMaterial = new THREE.MeshBasicMaterial({
       map: jasongodfreyTexture,
       transparent: true,
       opacity: 0.000000000000025, // Set to your desired opacity level (0.0 to 1.0)
-    
     });
-    console.log('Material created:', jasongodfreyMaterial);
-
     const jasongodfreyMesh = new THREE.Mesh(jasongodfreyGeometry, jasongodfreyMaterial);
     jasongodfreyMesh.position.set(0, -30, -270);
-    console.log('Mesh created:', jasongodfreyMesh);
-
     scene.add(jasongodfreyMesh);
-    console.log('Mesh added to the scene:', jasongodfreyMesh);
 
+       // Load and setup the clouds1.png texture
+  // Load and setup the clouds1.png texture
+   // Load and setup the clouds2.png texture
+   const cloudPositions = [
+    { x: 0, y: -10, z: -100 },
+    { x: -300, y: 150, z: -150 },
+    { x: 300, y: 200, z: -200 },
+    { x: 200, y: 50, z: -350 },
+    { x: -200, y: 120, z: -500 },
+    { x: 400, y: 80, z: -550 },
+  ];
 
-    const starTexture = textureLoader.load('particles.png'); // Load the new texture
-
-    const stars = [];
-    const numArms = 8; // Number of spiral arms
-    const armSeparationAngle = (2 * Math.PI) / numArms;
-    const armOffsetMax = 395.0; // Max distance stars can be offset from the spiral arms
-    const numStars = 1; // Total number of stars
-    const spiralDensity = 0.001; // Density of stars along the spiral
-    const xOffset = 20; // Additional offset to move stars further along the x-axis
-    const yOffset = -55; // Additional offset to move stars further along the y-axis
-    const zOffset = -310; // Additional offset to move stars further along the z-axis
-    
-    function addStar() {
-      const starGeometry = new THREE.SphereGeometry(3.65, 440, 440);
-      const starColor = new THREE.Color(`hsl(${THREE.MathUtils.randFloat(30, 40)}, 100%, ${THREE.MathUtils.randFloat(50, 70)}%)`);
-      const starMaterial = new THREE.MeshStandardMaterial({
-        map: starTexture, // Use the new texture
-        emissive: starColor,
-        emissiveIntensity: THREE.MathUtils.randFloat(0.1, 0.7),
-        opacity: 0.8,
-        transparent: true,
-      });
-      const star = new THREE.Mesh(starGeometry, starMaterial);
-    
-      const interactionSphere = new THREE.Mesh(
-        new THREE.SphereGeometry(2, 8, 8),
-        new THREE.MeshBasicMaterial({ visible: false })
-      );
-    
-      // Generate a random y value within a narrower range to create a disc shape
-      const y = THREE.MathUtils.randFloatSpread(10) - 15 + yOffset; // Adjust this value to control disc thickness
-    
-      // Calculate spiral galaxy positions
-      const armIndex = Math.floor(Math.random() * numArms);
-      const armAngle = armIndex * armSeparationAngle;
-      const spiralRadius = Math.random() * 50 + 10; // Radius of the spiral
-      const angle = spiralDensity * spiralRadius;
-      const offset = Math.random() * armOffsetMax - armOffsetMax / 2; // Offset to create star distribution around the arm
-    
-      star.position.set(
-        spiralRadius * Math.cos(angle + armAngle) + offset + xOffset,
-        y,
-        spiralRadius * Math.sin(angle + armAngle) + offset + zOffset // Add the zOffset here
-      );
-      interactionSphere.position.copy(star.position);
-    
-      scene.add(star);
-      scene.add(interactionSphere);
-    
-      stars.push({
-        mesh: star,
-        interaction: interactionSphere,
-        yInitial: star.position.y,
-        xInitial: star.position.x,
-        zInitial: star.position.z,
-        defaultColor: starColor,
-        hovered: false,
-        velocity: new THREE.Vector3(),
-      });
-    }
-    
-    Array(numStars).fill().forEach(addStar);
-    
-
-    const loader = new GLTFLoader();
-
-      loader.load('blue_dragon/scene.gltf', (gltf) => {
-        const dragon = gltf.scene;
-        dragon.scale.set(10000, 10000, 10000);
-        dragon.position.set(0, -250, -300);
-        scene.add(dragon);
-        dragonRef.current = dragon;
-        const dragonMixer = new THREE.AnimationMixer(dragon);
-        mixers.current.push(dragonMixer);
-    
-        let currentAction = dragonMixer.clipAction(gltf.animations[0]);
-        currentAction.play();
-    
-        const handleScroll = () => {
-          const scrollPercentage = (window.scrollY / document.body.scrollHeight) * 100;
-          console.log(`Scroll Percentage: ${scrollPercentage}%`);  // Log the scroll percentage
-        
-          if (scrollPercentage >= 10 && !animationTriggered.current) {
-            console.log("Triggering animation [2]");
-            animationTriggered.current = true;
-            if (gltf.animations.length > 1) {
-              currentAction.stop();  // Stop the current action immediately
-              const secondAction = dragonMixer.clipAction(gltf.animations[2]);
-              secondAction.reset();
-              secondAction.play();
-              secondAction.clampWhenFinished = true;
-              //secondAction.loop = THREE.LoopOnce;  // Ensure it only plays once
-              
-        
-              // Add listener for when animation finishes
-              secondAction.addEventListener('finished', () => {
-                secondAction.stop();
-                currentAction = dragonMixer.clipAction(gltf.animations[0]);
-                currentAction.reset();
-                currentAction.play();
-                animationTriggered.current = false;  // Reset trigger state
-              });
-            }
-          }
-        };
-        
-  
-      window.addEventListener('scroll', handleScroll);
-  
-  
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-      };
-    }, undefined, function (error) {
-      console.error('An error happened loading the GLTF model:', error);
-    });
-
-    const updateDragonWireframe = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollFraction = scrollTop / maxScroll;
-      const wireframe = scrollFraction > 1.0; // Change to wireframe halfway through scrolling
-    
-      if (dragonRef.current) {
-        dragonRef.current.traverse((child) => {
-          if (child.isMesh) {
-            child.material.wireframe = wireframe;
-          }
+  const cloudsTexture = textureLoader.load(
+    'cloud2.png',
+    (texture) => {
+      cloudPositions.forEach((pos) => {
+        const cloudsGeometry = new THREE.PlaneGeometry(
+          160 + Math.random() * 50, // Randomize size
+          80 + Math.random() * 25
+        );
+        const cloudsMaterial = new THREE.MeshBasicMaterial({
+          map: texture,
+          transparent: true,
+          opacity: 0.3 + Math.random() * 0.2, // Randomize opacity
         });
-      }
-    };
-    
-    window.addEventListener('scroll', updateDragonWireframe, false);
-    
-
-    loader.load('/portal/scene.gltf', (gltf) => {
-      const portal = gltf.scene;
-      portal.scale.set(0.1, 0.1, 0.1);
-      portal.position.set(0, -80, -300);
-      portal.rotation.y = Math.PI / 2.2;
-      scene.add(portal);
-
-      const portalMixer = new THREE.AnimationMixer(portal);
-      mixers.current.push(portalMixer);
-      gltf.animations.forEach((clip) => {
-        const action = portalMixer.clipAction(clip);
-        action.play();
+        const cloudsMesh = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
+        cloudsMesh.position.set(pos.x, pos.y, pos.z); // Adjust position as needed
+        cloudsMesh.rotation.z = Math.random() * Math.PI; // Randomize rotation
+        //scene.add(cloudsMesh);
       });
-    });
+    },
+    undefined,
+    (err) => console.error('An error occurred loading the clouds texture:', err)
+  );
+    // Add a point light to illuminate the stars
+    const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
+    pointLight.position.set(50, 50, 50);
+    scene.add(pointLight);
+
+    loadDragon(scene, mixers, animationTriggered);
+    loadPortal(scene, mixers);
 
     const moveForward = new THREE.Vector3();
     const moveRight = new THREE.Vector3();
@@ -316,7 +164,6 @@ const ThreeBackground = forwardRef((props, ref) => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const opacity = Math.max(0, 0.2 - scrollTop * 0.0001); // Adjust the factor for fading
       jasongodfreyMesh.material.opacity = opacity;
-      
     };
 
     const updateCameraPosition = () => {
@@ -394,11 +241,6 @@ const ThreeBackground = forwardRef((props, ref) => {
         star.interaction.position.copy(star.mesh.position);
       });
 
-      // Pulse opacity of the jasongodfreyMesh
-      const time = clock.getElapsedTime();
-      //jasongodfreyMesh.material.opacity = 0.285 + 0.1 * Math.sin(time * 2); // Adjust 0.1 to change the pulse amplitude
-
-      // Move the camera based on the movement keys
       const moveSpeed = 30 * delta;
       if (move.forward) {
         moveForward.setFromMatrixColumn(camera.matrix, 0).negate();
