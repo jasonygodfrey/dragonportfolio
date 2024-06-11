@@ -14,7 +14,7 @@ function About(props) {
 
     const [dataBlock] = useState({
         subtitle: '',
-        title: 'About Us',
+        title: 'About',
         desc: 'Welcome to Samurai Studios – where cutting-edge technology meets creativity. Specializing in Three.js and React, we create immersive, interactive web experiences that push the boundaries of user engagement and digital art.'
     });
 
