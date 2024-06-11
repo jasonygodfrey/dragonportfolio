@@ -6,6 +6,8 @@ import { loadDragon } from './loadDragon';
 import { loadPortal } from './loadPortal';
 import { handleStarHover } from './handleStarHover';
 import { handleKeyPress } from './handleKeyPress';
+import FogEffect from './FogEffect';
+
 
 const ThreeBackground = forwardRef((props, ref) => {
   const rendererRef = useRef(null);
@@ -72,16 +74,19 @@ const ThreeBackground = forwardRef((props, ref) => {
     scene.add(pointLight);
 
     // Add a red circle in front of the camera
-    const circleGeometry = new THREE.CircleGeometry(50, 32);
+    const circleGeometry = new THREE.CircleGeometry(0, 0);
     const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     const circleMesh = new THREE.Mesh(circleGeometry, circleMaterial);
     circleMesh.position.set(0, 0, -200);
-    scene.add(circleMesh);
+    //scene.add(circleMesh);
 
     loadDragon(scene, mixers, animationTriggered);
     loadPortal(scene, mixers);
 
     const cleanUpKeyPress = handleKeyPress(move);
+
+     // Initialize fog effect
+     //new FogEffect(scene, 0x000000, 100, 10000);
 
     const updateOpacityOnScroll = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -115,7 +120,9 @@ const ThreeBackground = forwardRef((props, ref) => {
 
     const clock = new THREE.Clock();
     let angle = 0;
-    const radius = 300; // Adjusted radius for closer initial position
+    const radius = 600; // Radius for circular motion
+    const initialCameraZ = -400; // Initial position further back
+    camera.position.set(0, 50, initialCameraZ); // Set initial camera position further back
     const animate = () => {
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
@@ -132,11 +139,24 @@ const ThreeBackground = forwardRef((props, ref) => {
 
       handleStarHover(stars, raycaster, mouse, mouseMovement, delta, k, d, damping, returnSpeed);
 
-      angle += delta * 0.5; // Adjust speed of rotation
+      angle += delta * 0.1; // Adjust speed of rotation
       camera.position.x = radius * Math.cos(angle) + mouseMovement.current.x * 50; // Add mouse parallax
-      camera.position.z = radius * Math.sin(angle) + mouseMovement.current.y * 50; // Add mouse parallax
-      camera.position.y = 50 + mouseMovement.current.y * 50; // Adjust for vertical mouse movement
+      camera.position.z = initialCameraZ + radius * Math.sin(angle) + mouseMovement.current.y * 50; // Add mouse parallax
+      camera.position.y = -50 + mouseMovement.current.y * 50; // Adjust for vertical mouse movement
       camera.lookAt(circleMesh.position);
+
+
+// Update star positions to animate in a spiral
+stars.forEach(star => {
+  const spiralAngle = delta * 1.0; // Increase the factor to make the spiral faster
+  star.angle += spiralAngle;
+  star.spiralRadius += spiralAngle * 1.0; // Increase the factor for faster spiral expansion
+  star.mesh.position.x = star.spiralRadius * Math.cos(star.angle) + star.offset;
+  star.mesh.position.z = star.spiralRadius * Math.sin(star.angle) + star.offset;
+  star.mesh.position.y = star.initialY;
+  star.interaction.position.copy(star.mesh.position);
+});
+
 
       composer.render();
     };

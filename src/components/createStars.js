@@ -5,18 +5,18 @@ export function createStars(scene) {
   const starTexture = textureLoader.load('particles.png');
 
   const stars = [];
-  const numArms = 4; // Reduced number of spiral arms
+  const numArms = 4;
   const armSeparationAngle = (2 * Math.PI) / numArms;
-  const armOffsetMax = 100; // Reduced max distance stars can be offset from the spiral arms
-  const numStars = 0; // Reduced number of stars for better performance
-  const spiralDensity = 0.1; // Adjust density for visibility
-  const xOffset = 0; // Additional offset to move stars further along the x-axis
-  const yOffset = 0; // Additional offset to move stars further along the y-axis
-  const zOffset = 0; // Additional offset to move stars further along the z-axis
+  const armOffsetMax = 100;
+  const numStars = 0;
+  const spiralDensity = 0.1;
+  const xOffset = 0;
+  const yOffset = 0;
+  const zOffset = 0;
 
   function addStar() {
-    const starGeometry = new THREE.SphereGeometry(1, 8, 8); // Simplified geometry
-    const starColor = new THREE.Color('hsl(30, 100%, 50%)'); // Lantern orange color
+    const starGeometry = new THREE.SphereGeometry(1, 8, 8);
+    const starColor = new THREE.Color('hsl(30, 100%, 50%)');
     const starMaterial = new THREE.MeshStandardMaterial({
       map: starTexture,
       emissive: starColor,
@@ -58,6 +58,11 @@ export function createStars(scene) {
       defaultColor: starColor,
       hovered: false,
       velocity: new THREE.Vector3(),
+      armAngle,
+      spiralRadius,
+      offset,
+      angle,
+      initialY: y,
     });
 
     console.log(`Added star at position: (${star.position.x}, ${star.position.y}, ${star.position.z})`);
