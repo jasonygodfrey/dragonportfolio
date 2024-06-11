@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, forwardRef } from 'react';
 import * as THREE from 'three';
-import { Raycaster, Vector2 } from 'three';
 import { setupScene } from './setupScene';
 import { createStars } from './createStars';
 import { loadDragon } from './loadDragon';
 import { loadPortal } from './loadPortal';
+import { handleStarHover } from './handleStarHover';
+import { handleKeyPress } from './handleKeyPress';
 
 const ThreeBackground = forwardRef((props, ref) => {
   const rendererRef = useRef(null);
@@ -12,8 +13,8 @@ const ThreeBackground = forwardRef((props, ref) => {
   const lastMousePosition = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const cameraRotation = useRef({ x: 0, y: 0 });
 
-  const raycaster = new Raycaster();
-  const mouse = new Vector2();
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
   const mouseMovement = useRef({ x: 0, y: 0 });
 
   const targetMousePosition = useRef({ x: 0, y: 0 });
@@ -65,100 +66,22 @@ const ThreeBackground = forwardRef((props, ref) => {
     jasongodfreyMesh.position.set(0, -30, -270);
     scene.add(jasongodfreyMesh);
 
-       // Load and setup the clouds1.png texture
-  // Load and setup the clouds1.png texture
-   // Load and setup the clouds2.png texture
-   const cloudPositions = [
-    { x: 0, y: -10, z: -100 },
-    { x: -300, y: 150, z: -150 },
-    { x: 300, y: 200, z: -200 },
-    { x: 200, y: 50, z: -350 },
-    { x: -200, y: 120, z: -500 },
-    { x: 400, y: 80, z: -550 },
-  ];
-
-  const cloudsTexture = textureLoader.load(
-    'cloud2.png',
-    (texture) => {
-      cloudPositions.forEach((pos) => {
-        const cloudsGeometry = new THREE.PlaneGeometry(
-          160 + Math.random() * 50, // Randomize size
-          80 + Math.random() * 25
-        );
-        const cloudsMaterial = new THREE.MeshBasicMaterial({
-          map: texture,
-          transparent: true,
-          opacity: 0.3 + Math.random() * 0.2, // Randomize opacity
-        });
-        const cloudsMesh = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
-        cloudsMesh.position.set(pos.x, pos.y, pos.z); // Adjust position as needed
-        cloudsMesh.rotation.z = Math.random() * Math.PI; // Randomize rotation
-        //scene.add(cloudsMesh);
-      });
-    },
-    undefined,
-    (err) => console.error('An error occurred loading the clouds texture:', err)
-  );
     // Add a point light to illuminate the stars
     const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
     pointLight.position.set(50, 50, 50);
     scene.add(pointLight);
 
+    // Add a red circle in front of the camera
+    const circleGeometry = new THREE.CircleGeometry(50, 32);
+    const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const circleMesh = new THREE.Mesh(circleGeometry, circleMaterial);
+    circleMesh.position.set(0, 0, -200);
+    scene.add(circleMesh);
+
     loadDragon(scene, mixers, animationTriggered);
     loadPortal(scene, mixers);
 
-    const moveForward = new THREE.Vector3();
-    const moveRight = new THREE.Vector3();
-    const moveUp = new THREE.Vector3(0, 1, 0);
-
-    const onKeyDown = (event) => {
-      switch (event.key.toLowerCase()) {
-        case 'w':
-          move.forward = true;
-          break;
-        case 's':
-          move.backward = true;
-          break;
-        case 'a':
-          move.left = true;
-          break;
-        case 'd':
-          move.right = true;
-          break;
-        case 'q':
-          move.up = true;
-          break;
-        case 'e':
-          move.down = true;
-          break;
-      }
-    };
-
-    const onKeyUp = (event) => {
-      switch (event.key.toLowerCase()) {
-        case 'w':
-          move.forward = false;
-          break;
-        case 's':
-          move.backward = false;
-          break;
-        case 'a':
-          move.left = false;
-          break;
-        case 'd':
-          move.right = false;
-          break;
-        case 'q':
-          move.up = false;
-          break;
-        case 'e':
-          move.down = false;
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
+    const cleanUpKeyPress = handleKeyPress(move);
 
     const updateOpacityOnScroll = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -166,7 +89,7 @@ const ThreeBackground = forwardRef((props, ref) => {
       jasongodfreyMesh.material.opacity = opacity;
     };
 
-    const updateCameraPosition = () => {
+    const updateCameraPositionOnScroll = () => {
       const scrollTop = document.body.getBoundingClientRect().top;
       camera.position.z = 30 + scrollTop * 0.02;
       camera.position.x = -3 + scrollTop * -0.0002;
@@ -174,7 +97,7 @@ const ThreeBackground = forwardRef((props, ref) => {
       updateOpacityOnScroll(); // Call the function to update opacity
     };
 
-    updateCameraPosition();
+    updateCameraPositionOnScroll();
 
     window.addEventListener('mousemove', (event) => {
       const deltaX = event.clientX - lastMousePosition.current.x;
@@ -188,9 +111,11 @@ const ThreeBackground = forwardRef((props, ref) => {
       camera.rotation.x = cameraRotation.current.x;
     });
 
-    document.body.onscroll = updateCameraPosition;
+    document.body.onscroll = updateCameraPositionOnScroll;
 
     const clock = new THREE.Clock();
+    let angle = 0;
+    const radius = 300; // Adjusted radius for closer initial position
     const animate = () => {
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
@@ -205,73 +130,20 @@ const ThreeBackground = forwardRef((props, ref) => {
       mouse.y = currentMousePosition.current.y;
       raycaster.setFromCamera(mouse, camera);
 
-      const intersects = raycaster.intersectObjects(stars.map(star => star.interaction));
+      handleStarHover(stars, raycaster, mouse, mouseMovement, delta, k, d, damping, returnSpeed);
 
-      stars.forEach((star) => {
-        const isHovered = intersects.some((intersect) => intersect.object === star.interaction);
-        if (isHovered) {
-          if (!star.hovered) {
-            star.mesh.material.color.set(`hsl(60, 100%, 75%)`);
-            star.mesh.material.emissive.set(`hsl(60, 100%, 75%)`);
-            star.hovered = true;
-          }
-
-          const displacement = new THREE.Vector3().copy(star.mesh.position).sub(new THREE.Vector3(star.xInitial, star.yInitial, star.zInitial));
-          const velocity = new THREE.Vector3().copy(star.velocity);
-          const force = displacement.multiplyScalar(-k).sub(velocity.clone().multiplyScalar(d));
-          star.velocity.add(force.multiplyScalar(delta)).multiplyScalar(1 - damping);
-          star.mesh.position.add(star.velocity.clone().multiplyScalar(delta));
-
-        } else {
-          if (star.hovered) {
-            star.mesh.material.color.copy(star.defaultColor);
-            star.mesh.material.emissive.copy(star.defaultColor);
-            star.hovered = false;
-          }
-
-          star.velocity.multiplyScalar(1 - damping);
-          const toInitial = new THREE.Vector3(star.xInitial, star.yInitial, star.zInitial).sub(star.mesh.position);
-          star.mesh.position.add(toInitial.multiplyScalar(delta * returnSpeed));
-        }
-
-        const offsetX = mouseMovement.current.x * star.zInitial * 0.01;
-        const offsetY = mouseMovement.current.y * star.zInitial * 0.01;
-        star.mesh.position.x += offsetX;
-        star.mesh.position.y += offsetY;
-        star.interaction.position.copy(star.mesh.position);
-      });
-
-      const moveSpeed = 30 * delta;
-      if (move.forward) {
-        moveForward.setFromMatrixColumn(camera.matrix, 0).negate();
-        camera.position.addScaledVector(moveForward, moveSpeed);
-      }
-      if (move.backward) {
-        moveForward.setFromMatrixColumn(camera.matrix, 0);
-        camera.position.addScaledVector(moveForward, moveSpeed);
-      }
-      if (move.left) {
-        moveRight.setFromMatrixColumn(camera.matrix, 0).negate();
-        camera.position.addScaledVector(moveRight, moveSpeed);
-      }
-      if (move.right) {
-        moveRight.setFromMatrixColumn(camera.matrix, 0);
-        camera.position.addScaledVector(moveRight, moveSpeed);
-      }
-      if (move.up) {
-        camera.position.y += moveSpeed;
-      }
-      if (move.down) {
-        camera.position.y -= moveSpeed;
-      }
+      angle += delta * 0.5; // Adjust speed of rotation
+      camera.position.x = radius * Math.cos(angle) + mouseMovement.current.x * 50; // Add mouse parallax
+      camera.position.z = radius * Math.sin(angle) + mouseMovement.current.y * 50; // Add mouse parallax
+      camera.position.y = 50 + mouseMovement.current.y * 50; // Adjust for vertical mouse movement
+      camera.lookAt(circleMesh.position);
 
       composer.render();
     };
     animate();
 
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
+      cleanUpKeyPress();
       window.removeEventListener('mousemove', onMouseMove);
       mixers.current.forEach((mixer) => mixer.stopAllAction());
       renderer.dispose();
