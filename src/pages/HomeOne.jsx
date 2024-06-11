@@ -154,6 +154,18 @@ function HomeOne(props) {
     };
   }, []);
 
+   // Automatically scroll down the page slowly
+   useEffect(() => {
+    const scrollStep = () => {
+      window.scrollBy(0, 2); // Adjust the second parameter for the scroll speed
+    };
+    const intervalId = setInterval(scrollStep, 50); // Adjust the interval for the scroll speed
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
 
   return (
     <div className="home-1" style={homeStyle}>
