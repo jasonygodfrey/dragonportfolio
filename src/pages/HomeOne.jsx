@@ -149,6 +149,7 @@ function HomeOne(props) {
             opacity: 1,
             transition: "opacity 2s ease",
             overflow: "hidden", // Ensure the background does not scroll
+            pointerEvents: "none", // Prevent interaction
           }}
         >
           <ThreeBackground2
@@ -165,7 +166,7 @@ function HomeOne(props) {
       )}
       <section style={fullScreenSection}></section>
 
-      <ThreeBackground
+      <div
         style={{
           position: "fixed",
           top: 0,
@@ -173,11 +174,21 @@ function HomeOne(props) {
           width: "100vw",
           height: "100vh",
           zIndex: -1,
-          objectFit: "cover",
           overflow: "hidden", // Ensure the background does not scroll
-
+          pointerEvents: "none", // Prevent interaction
         }}
-      />
+      >
+        <ThreeBackground
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+      </div>
 
       <Slider data={dataSlider} />
 
