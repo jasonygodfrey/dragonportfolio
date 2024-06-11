@@ -8,10 +8,11 @@ import { handleStarHover } from './handleStarHover';
 import { handleKeyPress } from './handleKeyPress';
 import FogEffect from './FogEffect';
 
-
 const ThreeBackground = forwardRef((props, ref) => {
   const rendererRef = useRef(null);
   const mixers = useRef([]); // Array to hold all AnimationMixers
+  const animationsRef = useRef([]); // Array to hold all animations
+  const currentAnimationIndex = useRef(0); // Current animation index
   const lastMousePosition = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const cameraRotation = useRef({ x: 0, y: 0 });
 
@@ -82,29 +83,19 @@ const ThreeBackground = forwardRef((props, ref) => {
     circleMesh.position.set(0, 0, -200);
     //scene.add(circleMesh);
 
-    loadDragon(scene, mixers, animationTriggered);
+    loadDragon(scene, mixers, animationTriggered, animationsRef, currentAnimationIndex);
     loadPortal(scene, mixers);
 
     const cleanUpKeyPress = handleKeyPress(move);
 
-     // Initialize fog effect
-     //new FogEffect(scene, 0x000000, 100, 10000);
+    // Initialize fog effect
+    //new FogEffect(scene, 0x000000, 100, 10000);
 
     const updateOpacityOnScroll = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const opacity = Math.max(0, 0.2 - scrollTop * 0.0001); // Adjust the factor for fading
       jasongodfreyMesh.material.opacity = opacity;
     };
-
-    const updateCameraPositionOnScroll = () => {
-      const scrollTop = document.body.getBoundingClientRect().top;
-      camera.position.z = 30 + scrollTop * 0.02;
-      camera.position.x = -3 + scrollTop * -0.0002;
-      
-      updateOpacityOnScroll(); // Call the function to update opacity
-    };
-
-    updateCameraPositionOnScroll();
 
     window.addEventListener('mousemove', (event) => {
       const deltaX = event.clientX - lastMousePosition.current.x;
@@ -118,12 +109,14 @@ const ThreeBackground = forwardRef((props, ref) => {
       camera.rotation.x = cameraRotation.current.x;
     });
 
-    document.body.onscroll = updateCameraPositionOnScroll;
-
     const clock = new THREE.Clock();
-    let angle = 0;
+    let angle = (30 * Math.PI) / 180; // Start angle at 30 degrees
+    let direction = 1; // 1 for forward, -1 for backward
     const radius = 600; // Radius for circular motion
     const initialCameraZ = -400; // Initial position further back
+    const minAngle = (30 * Math.PI) / 180; // Minimum angle for 30 degrees
+    const maxAngle = (150 * Math.PI) / 180; // Maximum angle for 150 degrees
+
     camera.position.set(0, 50, initialCameraZ); // Set initial camera position further back
     const animate = () => {
       requestAnimationFrame(animate);
@@ -141,24 +134,27 @@ const ThreeBackground = forwardRef((props, ref) => {
 
       handleStarHover(stars, raycaster, mouse, mouseMovement, delta, k, d, damping, returnSpeed);
 
-      angle += delta * 0.1; // Adjust speed of rotation
+      angle += delta * 0.1 * direction; // Adjust speed of rotation
+
+      if (angle >= maxAngle || angle <= minAngle) {
+        direction *= -1; // Reverse direction when reaching the ends
+      }
+
       camera.position.x = radius * Math.cos(angle) + mouseMovement.current.x * 50; // Add mouse parallax
       camera.position.z = initialCameraZ + radius * Math.sin(angle) + mouseMovement.current.y * 50; // Add mouse parallax
       camera.position.y = -50 + mouseMovement.current.y * 50; // Adjust for vertical mouse movement
       camera.lookAt(circleMesh.position);
 
-
-// Update star positions to animate in a spiral
-stars.forEach(star => {
-  const spiralAngle = delta * 1.0; // Increase the factor to make the spiral faster
-  star.angle += spiralAngle;
-  star.spiralRadius += spiralAngle * 1.0; // Increase the factor for faster spiral expansion
-  star.mesh.position.x = star.spiralRadius * Math.cos(star.angle) + star.offset;
-  star.mesh.position.z = star.spiralRadius * Math.sin(star.angle) + star.offset;
-  star.mesh.position.y = star.initialY;
-  star.interaction.position.copy(star.mesh.position);
-});
-
+      // Update star positions to animate in a spiral
+      stars.forEach(star => {
+        const spiralAngle = delta * 1.0; // Increase the factor to make the spiral faster
+        star.angle += spiralAngle;
+        star.spiralRadius += spiralAngle * 1.0; // Increase the factor for faster spiral expansion
+        star.mesh.position.x = star.spiralRadius * Math.cos(star.angle) + star.offset;
+        star.mesh.position.z = star.spiralRadius * Math.sin(star.angle) + star.offset;
+        star.mesh.position.y = star.initialY;
+        star.interaction.position.copy(star.mesh.position);
+      });
 
       composer.render();
     };
@@ -176,7 +172,7 @@ stars.forEach(star => {
     targetMousePosition.current.x = (event.clientX / window.innerWidth) * 2 - 1;
     targetMousePosition.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
     mouseMovement.current.x = (event.clientX - window.innerWidth / 2) * 0.001;
-    mouseMovement.current.y = (event.clientY - window.innerHeight / 2) * 0.001;
+    mouseMovement.current.y = (event.clientX - window.innerHeight / 2) * 0.001;
   };
 
   window.addEventListener('mousemove', onMouseMove, false);

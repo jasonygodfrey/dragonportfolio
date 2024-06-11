@@ -44,7 +44,7 @@ function HomeOne(props) {
     };
 
     window.addEventListener("resize", updateStyle);
-    window.addEventListener("scroll", toggleVisibility);
+    //window.addEventListener("scroll", toggleVisibility);
 
     updateStyle();
 
@@ -119,7 +119,7 @@ function HomeOne(props) {
       }
 
       // Re-enable scrolling and show scrollbar after 10 seconds
-      document.body.style.overflowY = "auto";
+      //document.body.style.overflowY = "auto";
       document.body.style.overflowX = "hidden";
       window.removeEventListener("wheel", preventScroll);
       window.removeEventListener("touchmove", preventScroll);
@@ -141,8 +141,7 @@ function HomeOne(props) {
       e.stopPropagation();
     };
 
-    document.body.style.overflowY = "hidden";
-    document.body.style.overflowX = "hidden";
+    document.body.style.overflow = "hidden";  // Ensure scrollbar stays hidden
     window.addEventListener("wheel", preventScroll, { passive: false });
     window.addEventListener("touchmove", preventScroll, { passive: false });
 
@@ -157,7 +156,7 @@ function HomeOne(props) {
    // Automatically scroll down the page slowly
    useEffect(() => {
     const scrollStep = () => {
-      window.scrollBy(0, 2); // Adjust the second parameter for the scroll speed
+      window.scrollBy(0, 0); // Adjust the second parameter for the scroll speed
     };
     const intervalId = setInterval(scrollStep, 50); // Adjust the interval for the scroll speed
 

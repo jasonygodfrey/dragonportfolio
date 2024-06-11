@@ -1,7 +1,7 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from 'three';
 
-export function loadDragon(scene, mixers, animationTriggered) {
+export function loadDragon(scene, mixers, animationTriggered, animationsRef) {
   const loader = new GLTFLoader();
 
   loader.load('blue_dragon/scene.gltf', (gltf) => {
@@ -16,36 +16,34 @@ export function loadDragon(scene, mixers, animationTriggered) {
     let currentAction = dragonMixer.clipAction(gltf.animations[0]);
     currentAction.play();
 
-    const handleScroll = () => {
-      const scrollPercentage = (window.scrollY / document.body.scrollHeight) * 100;
-      console.log(`Scroll Percentage: ${scrollPercentage}%`);  // Log the scroll percentage
-    
-      if (scrollPercentage >= 10 && !animationTriggered.current) {
-        console.log("Triggering animation [2]");
+    // Store animations in animationsRef
+    animationsRef.current = gltf.animations;
+
+    const handleMouseClick = () => {
+      if (!animationTriggered.current && gltf.animations.length > 2) {
         animationTriggered.current = true;
-        if (gltf.animations.length > 1) {
-          currentAction.stop();  // Stop the current action immediately
-          const secondAction = dragonMixer.clipAction(gltf.animations[2]);
-          secondAction.reset();
-          secondAction.play();
-          secondAction.clampWhenFinished = true;
-          
-          // Add listener for when animation finishes
-          secondAction.addEventListener('finished', () => {
-            secondAction.stop();
-            currentAction = dragonMixer.clipAction(gltf.animations[0]);
+        currentAction.stop();  // Stop the current action immediately
+        const fourthAction = dragonMixer.clipAction(gltf.animations[2]); // Assuming the desired animation is at index 3
+        fourthAction.reset();
+        fourthAction.play();
+        fourthAction.clampWhenFinished = true;
+        
+        // Add listener for when animation finishes
+        dragonMixer.addEventListener('finished', (e) => {
+          if (e.action === fourthAction) {
+            fourthAction.stop();
             currentAction.reset();
             currentAction.play();
             animationTriggered.current = false;  // Reset trigger state
-          });
-        }
+          }
+        });
       }
     };
-    
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener('click', handleMouseClick);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('click', handleMouseClick);
     };
   }, undefined, (error) => {
     console.error('An error happened loading the GLTF model:', error);
