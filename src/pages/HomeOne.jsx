@@ -148,6 +148,7 @@ function HomeOne(props) {
             zIndex: 9999999,
             opacity: 1,
             transition: "opacity 2s ease",
+            overflow: "hidden", // Ensure the background does not scroll
           }}
         >
           <ThreeBackground2
@@ -173,6 +174,8 @@ function HomeOne(props) {
           height: "100vh",
           zIndex: -1,
           objectFit: "cover",
+          overflow: "hidden", // Ensure the background does not scroll
+
         }}
       />
 
