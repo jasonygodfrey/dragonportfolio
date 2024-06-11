@@ -134,6 +134,27 @@ function HomeOne(props) {
     };
   }, []);
 
+   // Disable scrolling and hide scrollbar permanently
+   useEffect(() => {
+    const preventScroll = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    document.body.style.overflowY = "hidden";
+    document.body.style.overflowX = "hidden";
+    window.addEventListener("wheel", preventScroll, { passive: false });
+    window.addEventListener("touchmove", preventScroll, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", preventScroll);
+      window.removeEventListener("touchmove", preventScroll);
+      document.body.style.overflowY = "auto";
+      document.body.style.overflowX = "auto";
+    };
+  }, []);
+
+
   return (
     <div className="home-1" style={homeStyle}>
       {showScene && (
