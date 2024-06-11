@@ -63,6 +63,8 @@ const ThreeBackground = forwardRef((props, ref) => {
       map: jasongodfreyTexture,
       transparent: true,
       opacity: 0.000000000000025, // Set to your desired opacity level (0.0 to 1.0)
+      side: THREE.DoubleSide, // Ensure the texture is visible from both sides
+
     });
     const jasongodfreyMesh = new THREE.Mesh(jasongodfreyGeometry, jasongodfreyMaterial);
     jasongodfreyMesh.position.set(0, -30, -270);
