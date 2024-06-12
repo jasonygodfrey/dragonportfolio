@@ -42,7 +42,7 @@ const ThreeBackground = (props) => {
     const stars = createStars(scene);
 
     const textureLoader = new THREE.TextureLoader();
-    
+
     // Load and setup the jasongodfreydev.png texture
     const jasongodfreyTexture = textureLoader.load(
       'jasongodfreydev.png',
@@ -62,7 +62,7 @@ const ThreeBackground = (props) => {
     const jasongodfreyMaterial = new THREE.MeshBasicMaterial({
       map: jasongodfreyTexture,
       transparent: true,
-      opacity: 0.000000000000025, // Set to your desired opacity level (0.0 to 1.0)
+      opacity: 0.5, // Set to your desired opacity level (0.0 to 1.0)
       side: THREE.DoubleSide, // Ensure the texture is visible from both sides
     });
     const jasongodfreyMesh = new THREE.Mesh(jasongodfreyGeometry, jasongodfreyMaterial);
@@ -133,7 +133,7 @@ const ThreeBackground = (props) => {
     scene.add(sprite);
 
     // Interaction mesh for Contact text
-    const interactionGeometry = new THREE.PlaneGeometry(100, 50,); // Increase the size of the clickable area
+    const interactionGeometry = new THREE.PlaneGeometry(100, 50); // Increase the size of the clickable area
     const interactionMaterial = new THREE.MeshBasicMaterial({ visible: true, color: 0x00ff00, wireframe: true }); // Make the interaction mesh visible for debugging
     const interactionMesh = new THREE.Mesh(interactionGeometry, interactionMaterial);
     interactionMesh.position.set(0, 50, 0);
