@@ -227,7 +227,7 @@ const ThreeBackground2 = forwardRef((props, ref) => {
 
       portal.traverse((child) => {
         if (child.isMesh) {
-          child.renderOrder = 0; // Ensure it is rendered before the jasongodfreyMesh
+          //child.renderOrder = 0; // Ensure it is rendered before the jasongodfreyMesh
         }
       });
 
