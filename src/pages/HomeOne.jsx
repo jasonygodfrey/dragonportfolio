@@ -10,9 +10,9 @@ import { Link } from "react-router-dom";
 import img1 from "../assets/images/background/bg-ft.png";
 import img2 from "../assets/images/background/bg-ft2.png";
 import ScrollText from "../components/ScrollText";
-import ThreeBackground from "../components/ThreeBackground"; // Ensure these are the correct paths
-import ThreeBackground2 from "../components/ThreeBackground2"; // Ensure these are the correct paths
-import SmoothScroll from "../utils/SmoothScroll"; // Ensure this is the correct path to your SmoothScroll class
+import ThreeBackground from "../components/ThreeBackground";
+import ThreeBackground2 from "../components/ThreeBackground2";
+import SmoothScroll from "../utils/SmoothScroll";
 
 function HomeOne(props) {
   const threeBackgroundRef = useRef(null);
@@ -39,18 +39,47 @@ function HomeOne(props) {
       }
     };
 
-    const toggleVisibility = () => {
-      setIsVisible(window.pageYOffset > 500);
-    };
-
     window.addEventListener("resize", updateStyle);
-    //window.addEventListener("scroll", toggleVisibility);
-
     updateStyle();
 
     return () => {
       window.removeEventListener("resize", updateStyle);
-      window.removeEventListener("scroll", toggleVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
+    const preventScroll = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("wheel", preventScroll, { passive: false });
+    window.addEventListener("touchmove", preventScroll, { passive: false });
+
+    const timer = setTimeout(() => {
+      if (threeBackground2Ref.current) {
+        smoothScroll.gsap
+          .to(threeBackground2Ref.current, {
+            opacity: 0,
+            duration: 3.5,
+            ease: "power2.inOut",
+          })
+          .then(() => {
+            setShowScene(false);
+          });
+      }
+
+      document.body.style.overflow = "auto";
+      window.removeEventListener("wheel", preventScroll);
+      window.removeEventListener("touchmove", preventScroll);
+    }, 10000);
+
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = "auto";
+      window.removeEventListener("wheel", preventScroll);
+      window.removeEventListener("touchmove", preventScroll);
     };
   }, []);
 
@@ -79,93 +108,6 @@ function HomeOne(props) {
     color: "#fff",
   };
 
-  const pixelatedStyle = {
-    maxWidth: "80%",
-    height: "auto",
-    imageRendering: "pixelated",
-    transition: "opacity 2s ease",
-    opacity: 0,
-  };
-
-  const handleImageLoad = (event) => {
-    event.target.style.opacity = 1;
-  };
-
-  // Disable scrolling and hide scrollbar initially
-  useEffect(() => {
-    const preventScroll = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    };
-
-    document.body.style.overflowY = "hidden";
-    document.body.style.overflowX = "hidden";
-    window.addEventListener("wheel", preventScroll, { passive: false });
-    window.addEventListener("touchmove", preventScroll, { passive: false });
-
-    const timer = setTimeout(() => {
-      if (threeBackground2Ref.current) {
-        smoothScroll.gsap
-          .to(threeBackground2Ref.current, {
-            opacity: 0,
-            duration: 3.5,
-            ease: "power2.inOut",
-          })
-          .then(() => {
-            setTimeout(() => {
-              setShowScene(false);
-            }, 3500);
-          });
-      }
-
-      // Re-enable scrolling and show scrollbar after 10 seconds
-      //document.body.style.overflowY = "auto";
-      document.body.style.overflowX = "hidden";
-      window.removeEventListener("wheel", preventScroll);
-      window.removeEventListener("touchmove", preventScroll);
-    }, 10000);
-
-    return () => {
-      clearTimeout(timer);
-      document.body.style.overflowY = "auto";
-      document.body.style.overflowX = "hidden";
-      window.removeEventListener("wheel", preventScroll);
-      window.removeEventListener("touchmove", preventScroll);
-    };
-  }, []);
-
-   // Disable scrolling and hide scrollbar permanently
-   useEffect(() => {
-    const preventScroll = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    };
-
-    document.body.style.overflow = "hidden";  // Ensure scrollbar stays hidden
-    window.addEventListener("wheel", preventScroll, { passive: false });
-    window.addEventListener("touchmove", preventScroll, { passive: false });
-
-    return () => {
-      window.removeEventListener("wheel", preventScroll);
-      window.removeEventListener("touchmove", preventScroll);
-      document.body.style.overflowY = "auto";
-      document.body.style.overflowX = "auto";
-    };
-  }, []);
-
-   // Automatically scroll down the page slowly
-   useEffect(() => {
-    const scrollStep = () => {
-      window.scrollBy(0, 0); // Adjust the second parameter for the scroll speed
-    };
-    const intervalId = setInterval(scrollStep, 50); // Adjust the interval for the scroll speed
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
-
-
   return (
     <div className="home-1" style={homeStyle}>
       {showScene && (
@@ -180,8 +122,8 @@ function HomeOne(props) {
             zIndex: 9999999,
             opacity: 1,
             transition: "opacity 2s ease",
-            overflow: "hidden", // Ensure the background does not scroll
-            pointerEvents: "none", // Prevent interaction
+            overflow: "hidden",
+            pointerEvents: "none",
           }}
         >
           <ThreeBackground2
@@ -206,8 +148,8 @@ function HomeOne(props) {
           width: "100vw",
           height: "100vh",
           zIndex: -1,
-          overflow: "hidden", // Ensure the background does not scroll
-          pointerEvents: "none", // Prevent interaction
+          overflow: "hidden",
+          pointerEvents: "none",
         }}
       >
         <ThreeBackground
@@ -218,8 +160,7 @@ function HomeOne(props) {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            pointerEvents: 'all', // Allow interaction
-
+            pointerEvents: "all",
           }}
         />
       </div>
