@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, forwardRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { setupScene } from './setupScene';
 import { createStars } from './createStars';
@@ -6,9 +6,8 @@ import { loadDragon } from './loadDragon';
 import { loadPortal } from './loadPortal';
 import { handleStarHover } from './handleStarHover';
 import { handleKeyPress } from './handleKeyPress';
-import FogEffect from './FogEffect';
 
-const ThreeBackground = forwardRef((props, ref) => {
+const ThreeBackground = (props) => {
   const rendererRef = useRef(null);
   const mixers = useRef([]); // Array to hold all AnimationMixers
   const animationsRef = useRef([]); // Array to hold all animations
@@ -65,7 +64,6 @@ const ThreeBackground = forwardRef((props, ref) => {
       transparent: true,
       opacity: 0.000000000000025, // Set to your desired opacity level (0.0 to 1.0)
       side: THREE.DoubleSide, // Ensure the texture is visible from both sides
-
     });
     const jasongodfreyMesh = new THREE.Mesh(jasongodfreyGeometry, jasongodfreyMaterial);
     jasongodfreyMesh.position.set(0, -30, -270);
@@ -83,20 +81,20 @@ const ThreeBackground = forwardRef((props, ref) => {
     circleMesh.position.set(0, 0, -200);
     //scene.add(circleMesh);
 
+    // Load Dragon and Portal
     loadDragon(scene, mixers, animationTriggered, animationsRef, currentAnimationIndex);
     loadPortal(scene, mixers);
 
     const cleanUpKeyPress = handleKeyPress(move);
 
-    // Initialize fog effect
-    //new FogEffect(scene, 0x000000, 100, 10000);
-
+    // Update opacity on scroll
     const updateOpacityOnScroll = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const opacity = Math.max(0, 0.2 - scrollTop * 0.0001); // Adjust the factor for fading
       jasongodfreyMesh.material.opacity = opacity;
     };
 
+    // Mouse move event
     window.addEventListener('mousemove', (event) => {
       const deltaX = event.clientX - lastMousePosition.current.x;
       const deltaY = event.clientY - lastMousePosition.current.y;
@@ -109,13 +107,88 @@ const ThreeBackground = forwardRef((props, ref) => {
       camera.rotation.x = cameraRotation.current.x;
     });
 
+    // Create Contact text
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const fontSize = 100;
+    context.font = `${fontSize}px Arial`;
+    const textWidth = context.measureText('Contact').width;
+
+    // Resize canvas to fit text
+    canvas.width = textWidth;
+    canvas.height = fontSize;
+    context.font = `${fontSize}px Arial`;
+    context.fillStyle = 'white';
+    context.fillText('Contact', 0, fontSize);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(spriteMaterial);
+
+    sprite.position.set(0, 50, 0);
+    sprite.scale.set(canvas.width / 10, canvas.height / 10, 1); // Adjust scale as needed
+    sprite.userData = { url: 'https://www.linkedin.com/in/jasong7/', originalColor: 'white', texture, canvas, context };
+
+    // Add the sprite to the scene
+    scene.add(sprite);
+
+    // Interaction mesh for Contact text
+    const interactionGeometry = new THREE.PlaneGeometry(100, 50,); // Increase the size of the clickable area
+    const interactionMaterial = new THREE.MeshBasicMaterial({ visible: true, color: 0x00ff00, wireframe: true }); // Make the interaction mesh visible for debugging
+    const interactionMesh = new THREE.Mesh(interactionGeometry, interactionMaterial);
+    interactionMesh.position.set(0, 50, 0);
+    interactionMesh.userData = sprite.userData;
+    scene.add(interactionMesh);
+
+    // Raycasting and interaction handling
+    const handleMouseMove = (event) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects([interactionMesh]);
+
+      if (intersects.length > 0) {
+        const intersectedObject = intersects[0].object;
+        if (sprite.userData !== intersectedObject.userData) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.fillStyle = 'blue';
+          context.fillText('Contact', 0, fontSize);
+          texture.needsUpdate = true;
+        }
+      } else {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = 'white';
+        context.fillText('Contact', 0, fontSize);
+        texture.needsUpdate = true;
+      }
+    };
+
+    const handleMouseClick = (event) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects([interactionMesh]);
+
+      if (intersects.length > 0) {
+        const intersectedObject = intersects[0].object;
+        if (intersectedObject.userData.url) {
+          window.location.href = intersectedObject.userData.url;
+        }
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('click', handleMouseClick);
+
     const clock = new THREE.Clock();
     let angle = (30 * Math.PI) / 180; // Start angle at 30 degrees
     let direction = 1; // 1 for forward, -1 for backward
     const radius = 600; // Radius for circular motion
     const initialCameraZ = -400; // Initial position further back
-    const minAngle = (30 * Math.PI) / 180; // Minimum angle for 30 degrees
-    const maxAngle = (150 * Math.PI) / 180; // Maximum angle for 150 degrees
+    const minAngle = (60 * Math.PI) / 180; // Minimum angle for 30 degrees
+    const maxAngle = (120 * Math.PI) / 180; // Maximum angle for 150 degrees
 
     camera.position.set(0, 50, initialCameraZ); // Set initial camera position further back
     const animate = () => {
@@ -162,6 +235,8 @@ const ThreeBackground = forwardRef((props, ref) => {
 
     return () => {
       cleanUpKeyPress();
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('click', handleMouseClick);
       window.removeEventListener('mousemove', onMouseMove);
       mixers.current.forEach((mixer) => mixer.stopAllAction());
       renderer.dispose();
@@ -178,6 +253,6 @@ const ThreeBackground = forwardRef((props, ref) => {
   window.addEventListener('mousemove', onMouseMove, false);
 
   return <canvas ref={rendererRef} {...props} />;
-});
+};
 
 export default ThreeBackground;
