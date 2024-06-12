@@ -135,7 +135,7 @@ const ThreeBackground = (props) => {
 
       // Interaction mesh for the text
       const interactionGeometry = new THREE.PlaneGeometry(100, 50); // Increase the size of the clickable area
-      const interactionMaterial = new THREE.MeshBasicMaterial({ visible: true, color: 0x00ff00, wireframe: true }); // Make the interaction mesh visible for debugging
+      const interactionMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0x00ff00, wireframe: true }); // Make the interaction mesh visible for debugging
       const interactionMesh = new THREE.Mesh(interactionGeometry, interactionMaterial);
       interactionMesh.position.set(x, y, z);
       interactionMesh.userData = sprite.userData;
@@ -145,9 +145,9 @@ const ThreeBackground = (props) => {
     };
 
     // Create Contact, GitHub, and Projects text sprites
-    const contact = createTextSprite('Contact', 0, 50, 0, 'https://www.linkedin.com/in/jasong7/');
-    const github = createTextSprite('GitHub', 0, 0, 0, 'https://github.com/jasonygodfrey');
-    const projects = createTextSprite('Projects', 0, -50, 0, '#');
+    const contact = createTextSprite('Contact', 0, 50, -40, 'https://www.linkedin.com/in/jasong7/');
+    const github = createTextSprite('GitHub', 0, 0, -40, 'https://github.com/jasonygodfrey');
+    const projects = createTextSprite('Projects', 0, -50, -40, '#');
 
     // Raycasting and interaction handling
     const handleMouseMove = (event) => {
