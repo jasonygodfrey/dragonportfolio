@@ -107,38 +107,47 @@ const ThreeBackground = (props) => {
       camera.rotation.x = cameraRotation.current.x;
     });
 
-    // Create Contact text
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const fontSize = 100;
-    context.font = `${fontSize}px Arial`;
-    const textWidth = context.measureText('Contact').width;
+    // Function to create text sprite
+    const createTextSprite = (text, x, y, z, url) => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      const fontSize = 100;
+      context.font = `${fontSize}px Arial`;
+      const textWidth = context.measureText(text).width;
 
-    // Resize canvas to fit text
-    canvas.width = textWidth;
-    canvas.height = fontSize;
-    context.font = `${fontSize}px Arial`;
-    context.fillStyle = 'white';
-    context.fillText('Contact', 0, fontSize);
+      // Resize canvas to fit text
+      canvas.width = textWidth;
+      canvas.height = fontSize;
+      context.font = `${fontSize}px Arial`;
+      context.fillStyle = 'white';
+      context.fillText(text, 0, fontSize);
 
-    const texture = new THREE.CanvasTexture(canvas);
-    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
-    const sprite = new THREE.Sprite(spriteMaterial);
+      const texture = new THREE.CanvasTexture(canvas);
+      const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+      const sprite = new THREE.Sprite(spriteMaterial);
 
-    sprite.position.set(0, 50, 0);
-    sprite.scale.set(canvas.width / 10, canvas.height / 10, 1); // Adjust scale as needed
-    sprite.userData = { url: 'https://www.linkedin.com/in/jasong7/', originalColor: 'white', texture, canvas, context };
+      sprite.position.set(x, y, z);
+      sprite.scale.set(canvas.width / 10, canvas.height / 10, 1); // Adjust scale as needed
+      sprite.userData = { url, originalColor: 'white', texture, canvas, context };
 
-    // Add the sprite to the scene
-    scene.add(sprite);
+      // Add the sprite to the scene
+      scene.add(sprite);
 
-    // Interaction mesh for Contact text
-    const interactionGeometry = new THREE.PlaneGeometry(100, 50); // Increase the size of the clickable area
-    const interactionMaterial = new THREE.MeshBasicMaterial({ visible: true, color: 0x00ff00, wireframe: true }); // Make the interaction mesh visible for debugging
-    const interactionMesh = new THREE.Mesh(interactionGeometry, interactionMaterial);
-    interactionMesh.position.set(0, 50, 0);
-    interactionMesh.userData = sprite.userData;
-    scene.add(interactionMesh);
+      // Interaction mesh for the text
+      const interactionGeometry = new THREE.PlaneGeometry(100, 50); // Increase the size of the clickable area
+      const interactionMaterial = new THREE.MeshBasicMaterial({ visible: true, color: 0x00ff00, wireframe: true }); // Make the interaction mesh visible for debugging
+      const interactionMesh = new THREE.Mesh(interactionGeometry, interactionMaterial);
+      interactionMesh.position.set(x, y, z);
+      interactionMesh.userData = sprite.userData;
+      scene.add(interactionMesh);
+
+      return { sprite, interactionMesh };
+    };
+
+    // Create Contact, GitHub, and Projects text sprites
+    const contact = createTextSprite('Contact', 0, 50, 0, 'https://www.linkedin.com/in/jasong7/');
+    const github = createTextSprite('GitHub', 0, 0, 0, 'https://github.com/jasonygodfrey');
+    const projects = createTextSprite('Projects', 0, -50, 0, '#');
 
     // Raycasting and interaction handling
     const handleMouseMove = (event) => {
@@ -146,21 +155,21 @@ const ThreeBackground = (props) => {
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
 
-      const intersects = raycaster.intersectObjects([interactionMesh]);
+      const intersects = raycaster.intersectObjects([contact.interactionMesh, github.interactionMesh, projects.interactionMesh]);
 
       if (intersects.length > 0) {
         const intersectedObject = intersects[0].object;
-        if (sprite.userData !== intersectedObject.userData) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          context.fillStyle = 'blue';
-          context.fillText('Contact', 0, fontSize);
-          texture.needsUpdate = true;
-        }
+        intersectedObject.userData.context.clearRect(0, 0, intersectedObject.userData.canvas.width, intersectedObject.userData.canvas.height);
+        intersectedObject.userData.context.fillStyle = 'blue';
+        intersectedObject.userData.context.fillText(intersectedObject.userData.url === contact.interactionMesh.userData.url ? 'Contact' : intersectedObject.userData.url === github.interactionMesh.userData.url ? 'GitHub' : 'Projects', 0, intersectedObject.userData.canvas.height);
+        intersectedObject.userData.texture.needsUpdate = true;
       } else {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.fillStyle = 'white';
-        context.fillText('Contact', 0, fontSize);
-        texture.needsUpdate = true;
+        [contact, github, projects].forEach((obj) => {
+          obj.sprite.userData.context.clearRect(0, 0, obj.sprite.userData.canvas.width, obj.sprite.userData.canvas.height);
+          obj.sprite.userData.context.fillStyle = 'white';
+          obj.sprite.userData.context.fillText(obj.sprite.userData.url === contact.interactionMesh.userData.url ? 'Contact' : obj.sprite.userData.url === github.interactionMesh.userData.url ? 'GitHub' : 'Projects', 0, obj.sprite.userData.canvas.height);
+          obj.sprite.userData.texture.needsUpdate = true;
+        });
       }
     };
 
@@ -169,7 +178,7 @@ const ThreeBackground = (props) => {
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
 
-      const intersects = raycaster.intersectObjects([interactionMesh]);
+      const intersects = raycaster.intersectObjects([contact.interactionMesh, github.interactionMesh, projects.interactionMesh]);
 
       if (intersects.length > 0) {
         const intersectedObject = intersects[0].object;
@@ -187,8 +196,8 @@ const ThreeBackground = (props) => {
     let direction = 1; // 1 for forward, -1 for backward
     const radius = 600; // Radius for circular motion
     const initialCameraZ = -400; // Initial position further back
-    const minAngle = (60 * Math.PI) / 180; // Minimum angle for 30 degrees
-    const maxAngle = (120 * Math.PI) / 180; // Maximum angle for 150 degrees
+    const minAngle = (30 * Math.PI) / 180; // Minimum angle for 30 degrees
+    const maxAngle = (150 * Math.PI) / 180; // Maximum angle for 150 degrees
 
     camera.position.set(0, 50, initialCameraZ); // Set initial camera position further back
     const animate = () => {
