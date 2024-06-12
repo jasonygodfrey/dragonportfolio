@@ -207,7 +207,7 @@ const ThreeBackground = (props) => {
 
       handleStarHover(stars, raycaster, mouse, mouseMovement, delta, k, d, damping, returnSpeed);
 
-      angle += delta * 0.1 * direction; // Adjust speed of rotation
+      angle += delta * 0.05 * direction; // Adjust speed of rotation
 
       if (angle >= maxAngle || angle <= minAngle) {
         direction *= -1; // Reverse direction when reaching the ends
