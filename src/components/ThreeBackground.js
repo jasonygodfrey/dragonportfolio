@@ -187,8 +187,8 @@ const ThreeBackground = (props) => {
     let direction = 1; // 1 for forward, -1 for backward
     const radius = 600; // Radius for circular motion
     const initialCameraZ = -400; // Initial position further back
-    const minAngle = (30 * Math.PI) / 180; // Minimum angle for 30 degrees
-    const maxAngle = (150 * Math.PI) / 180; // Maximum angle for 150 degrees
+    const minAngle = (60 * Math.PI) / 180; // Minimum angle for 30 degrees
+    const maxAngle = (120 * Math.PI) / 180; // Maximum angle for 150 degrees
 
     camera.position.set(0, 50, initialCameraZ); // Set initial camera position further back
     const animate = () => {
