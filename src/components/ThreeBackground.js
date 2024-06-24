@@ -67,7 +67,7 @@ const ThreeBackground = (props) => {
     });
     const jasongodfreyMesh = new THREE.Mesh(jasongodfreyGeometry, jasongodfreyMaterial);
     jasongodfreyMesh.position.set(0, -30, -270);
-    scene.add(jasongodfreyMesh);
+    //scene.add(jasongodfreyMesh);
 
     // Add a point light to illuminate the stars
     const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
@@ -131,7 +131,7 @@ const ThreeBackground = (props) => {
       sprite.userData = { url, originalColor: 'white', texture, canvas, context };
 
       // Add the sprite to the scene
-      scene.add(sprite);
+      //scene.add(sprite);
 
       // Interaction mesh for the text
       const interactionGeometry = new THREE.PlaneGeometry(100, 50); // Increase the size of the clickable area
@@ -192,12 +192,12 @@ const ThreeBackground = (props) => {
     window.addEventListener('click', handleMouseClick);
 
     const clock = new THREE.Clock();
-    let angle = (30 * Math.PI) / 180; // Start angle at 30 degrees
+    let angle = (62 * Math.PI) / 180; // Start angle at 30 degrees
     let direction = 1; // 1 for forward, -1 for backward
     const radius = 600; // Radius for circular motion
     const initialCameraZ = -400; // Initial position further back
-    const minAngle = (30 * Math.PI) / 180; // Minimum angle for 30 degrees
-    const maxAngle = (150 * Math.PI) / 180; // Maximum angle for 150 degrees
+    const minAngle = (60 * Math.PI) / 180; // Minimum angle for 30 degrees
+    const maxAngle = (120 * Math.PI) / 180; // Maximum angle for 150 degrees
 
     camera.position.set(0, 50, initialCameraZ); // Set initial camera position further back
     const animate = () => {
