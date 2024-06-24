@@ -24,6 +24,9 @@ function HomeOne(props) {
 
   return (
     <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh" }}>
+      <div className="logo" style={{ position: "absolute", top: "20px", left: "50%", transform: "translateX(-50%)", zIndex: 10, pointerEvents: "none" }}>
+        <img src="/logo.png" alt="logo" style={{ width: '254px', height: '64px', maxWidth: '100%', height: 'auto' }} />
+      </div>
       <ThreeBackground
         style={{
           position: "absolute",
@@ -44,6 +47,7 @@ function HomeOne(props) {
         alignItems: "center",
         justifyContent: "center"
       }}>
+        
         <a
           href="https://samuraistudios.dev"
           target="_blank"
