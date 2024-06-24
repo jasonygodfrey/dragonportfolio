@@ -74,7 +74,7 @@ function HomeOne(props) {
             e.currentTarget.style.textShadow = "2px 2px 4px rgba(0,0,0,0.5)";
           }}
         >
-          Samurai Studios Web Development
+          
         </a>
         <a
           href="https://github.com/jasonygodfrey"
